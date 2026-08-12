@@ -6,7 +6,7 @@ import HeroCarousel from "@/components/HeroCarousel";
 import Marquee from "@/components/Marquee";
 import SocialCarousel from "@/components/SocialCarousel";
 import { Reveal } from "@/components/Reveal";
-import { useContent, sortByPriority } from "@/hooks/useContent";
+import { useContent, sortByPriority, useInstagramFeed } from "@/hooks/useContent";
 import { resolveImg } from "@/lib/api";
 import ProductCard from "@/components/ProductCard";
 
@@ -23,7 +23,10 @@ export default function Home() {
   const story = data?.story || {};
   const categories = data?.categories || [];
   const testimonials = data?.testimonials || [];
-  const social = data?.social_posts || [];
+  const manualSocial = data?.social_posts || [];
+  const igEnabled = !!data?.instagram_enabled;
+  const { data: igFeed } = useInstagramFeed(igEnabled);
+  const social = igEnabled && igFeed && igFeed.length > 0 ? igFeed : manualSocial;
   const featured = sortByPriority((data?.products || []).filter((p) => p.featured)).slice(0, 4);
 
   return (

@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { Reorder, useDragControls } from "framer-motion";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/context/AuthContext";
-import { api, API, resolveImg } from "@/lib/api";
+import { api, API, resolveImg, formatApiError } from "@/lib/api";
 
 const TABS = [
   { id: "enquiries", label: "Enquiries", icon: "fa-inbox" },
@@ -13,6 +13,7 @@ const TABS = [
   { id: "products", label: "Products", icon: "fa-box" },
   { id: "cleaning", label: "Cleaning", icon: "fa-spray-can-sparkles" },
   { id: "social", label: "Social & Videos", icon: "fa-hashtag" },
+  { id: "instagram", label: "Instagram Sync", icon: "fa-camera-retro" },
   { id: "contact", label: "Contact", icon: "fa-address-book" },
   { id: "settings", label: "Settings", icon: "fa-gear" },
 ];
@@ -92,14 +93,16 @@ function SortableItem({ value, label, onRemove, removeTestid, children }) {
           </button>
           <span className="text-xs font-bold text-leaf uppercase tracking-widest">{label}</span>
         </div>
-        <button
-          data-testid={removeTestid}
-          onClick={onRemove}
-          aria-label="Remove"
-          className="w-9 h-9 rounded-full text-sunset hover:bg-sunset hover:text-white flex items-center justify-center transition-colors"
-        >
-          <i className="fa-solid fa-trash-can" />
-        </button>
+        {onRemove && (
+          <button
+            data-testid={removeTestid}
+            onClick={onRemove}
+            aria-label="Remove"
+            className="w-9 h-9 rounded-full text-sunset hover:bg-sunset hover:text-white flex items-center justify-center transition-colors"
+          >
+            <i className="fa-solid fa-trash-can" />
+          </button>
+        )}
       </div>
       {children}
     </Reorder.Item>
@@ -204,16 +207,22 @@ export default function AdminDashboard() {
   const [enquiries, setEnquiries] = useState([]);
   const [webhook, setWebhook] = useState("");
   const [saving, setSaving] = useState(false);
+  const [hasDraft, setHasDraft] = useState(false);
+  const [ig, setIg] = useState({ connected: false, username: null, enabled: false, media_count: 0, last_synced: null });
+  const [igForm, setIgForm] = useState({ ig_user_id: "", access_token: "" });
 
   useEffect(() => {
     if (ready && !admin) nav("/admin/login");
   }, [ready, admin, nav]);
 
+  const refreshIg = () => api.get("/admin/instagram/status").then(({ data }) => setIg(data)).catch(() => {});
+
   useEffect(() => {
     if (!admin) return;
-    api.get("/admin/content").then(({ data }) => setContent(data)).catch(() => {});
+    api.get("/admin/content").then(({ data }) => { setContent(data); setHasDraft(!!data.has_unpublished); }).catch(() => {});
     api.get("/admin/enquiries").then(({ data }) => setEnquiries(data)).catch(() => {});
     api.get("/admin/settings").then(({ data }) => setWebhook(data.sheets_webhook_url || "")).catch(() => {});
+    refreshIg();
   }, [admin]);
 
   const update = (key, value) => setContent((c) => ({ ...c, [key]: value }));
@@ -242,12 +251,44 @@ export default function AdminDashboard() {
   const save = async () => {
     setSaving(true);
     try {
-      const { settings, ...rest } = content;
+      const { settings, has_unpublished, ...rest } = content;
       await api.put("/content", rest);
+      setHasDraft(true);
       qc.invalidateQueries({ queryKey: ["site-content"] });
-      toast.success("Content saved & published.");
+      toast.success("Draft saved. Preview it, then Publish to go live.");
     } catch {
       toast.error("Save failed.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const publish = async () => {
+    setSaving(true);
+    try {
+      const { settings, has_unpublished, ...rest } = content;
+      await api.put("/content", rest); // ensure latest edits are in the draft
+      await api.post("/admin/publish");
+      setHasDraft(false);
+      qc.invalidateQueries({ queryKey: ["site-content"] });
+      toast.success("Published! Your changes are now live.");
+    } catch (e) {
+      toast.error("Publish failed.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const discardDraft = async () => {
+    setSaving(true);
+    try {
+      await api.post("/admin/discard");
+      const { data } = await api.get("/admin/content");
+      setContent(data);
+      setHasDraft(false);
+      toast.success("Draft discarded. Back to the live version.");
+    } catch {
+      toast.error("Could not discard draft.");
     } finally {
       setSaving(false);
     }
@@ -279,6 +320,43 @@ export default function AdminDashboard() {
     }
   };
 
+  const igConnect = async () => {
+    setSaving(true);
+    try {
+      const { data } = await api.post("/admin/instagram/connect", igForm);
+      toast.success(`Connected @${data.username}. Now click Sync.`);
+      setIgForm({ ig_user_id: "", access_token: "" });
+      await refreshIg();
+    } catch (e) {
+      toast.error(formatApiError(e.response?.data?.detail) || "Connection failed.");
+    } finally {
+      setSaving(false);
+    }
+  };
+  const igSync = async () => {
+    setSaving(true);
+    try {
+      const { data } = await api.post("/admin/instagram/sync");
+      toast.success(`Synced ${data.synced} post(s).`);
+      qc.invalidateQueries({ queryKey: ["instagram-feed"] });
+      await refreshIg();
+    } catch (e) {
+      toast.error(formatApiError(e.response?.data?.detail) || "Sync failed.");
+    } finally {
+      setSaving(false);
+    }
+  };
+  const igToggle = async (enabled) => {
+    await api.post("/admin/instagram/toggle", { enabled }).catch(() => {});
+    qc.invalidateQueries({ queryKey: ["instagram-feed"] });
+    await refreshIg();
+  };
+  const igDisconnect = async () => {
+    await api.post("/admin/instagram/disconnect").catch(() => {});
+    await refreshIg();
+    toast.success("Instagram disconnected.");
+  };
+
   if (!ready || !admin || !content) {
     return <div className="min-h-screen bg-bg flex items-center justify-center text-ink2">Loading dashboard…</div>;
   }
@@ -294,12 +372,25 @@ export default function AdminDashboard() {
           Excel <span className="text-leaf">Admin</span>
         </div>
         <div className="flex items-center gap-3">
-          <a href="/" target="_blank" rel="noreferrer" className="text-sm text-white/70 hover:text-white">View Site <i className="fa-solid fa-arrow-up-right-from-square text-xs ml-1" /></a>
-          {tab !== "enquiries" && tab !== "settings" && (
-            <button data-testid="admin-save" onClick={save} disabled={saving} className="bg-leaf px-5 py-2.5 rounded-full text-sm font-bold hover:bg-sunset transition-colors disabled:opacity-60">
-              {saving ? "Saving…" : "Save & Publish"}
+          {hasDraft && (
+            <span data-testid="unpublished-badge" className="hidden sm:inline-flex items-center gap-2 text-xs font-bold text-ink bg-sun px-3 py-1.5 rounded-full">
+              <i className="fa-solid fa-circle-dot" /> Unpublished changes
+            </span>
+          )}
+          <a href="/?preview=1" target="_blank" rel="noreferrer" data-testid="admin-preview" className="text-sm text-white/80 hover:text-white font-semibold">
+            <i className="fa-solid fa-eye mr-1" /> Preview
+          </a>
+          {hasDraft && (
+            <button data-testid="admin-discard" onClick={discardDraft} disabled={saving} className="text-sm text-white/60 hover:text-white font-semibold">Discard</button>
+          )}
+          {tab !== "enquiries" && tab !== "settings" && tab !== "instagram" && (
+            <button data-testid="admin-save" onClick={save} disabled={saving} className="bg-white/10 px-5 py-2.5 rounded-full text-sm font-bold hover:bg-white/20 transition-colors disabled:opacity-60">
+              {saving ? "Saving…" : "Save Draft"}
             </button>
           )}
+          <button data-testid="admin-publish" onClick={publish} disabled={saving} className="bg-leaf px-5 py-2.5 rounded-full text-sm font-bold hover:bg-sunset transition-colors disabled:opacity-60">
+            Publish Live
+          </button>
           <button data-testid="admin-logout" onClick={() => { logout(); nav("/admin/login"); }} className="bg-white/10 px-4 py-2.5 rounded-full text-sm font-bold hover:bg-white/20">Logout</button>
         </div>
       </header>
@@ -354,34 +445,40 @@ export default function AdminDashboard() {
 
           {tab === "hero" && (
             <section className="space-y-4" data-testid="admin-hero">
-              <h2 className="text-2xl font-extrabold text-ink mb-2">Hero Carousel Slides</h2>
-              {content.hero_slides?.map((s, i) => (
-                <Card key={s.id}>
-                  <ImgField label={`Slide ${i + 1} image`} value={s.image} onChange={(v) => updateItem("hero_slides", i, "image", v)} testid={`hero-img-${i}`} />
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <Txt label="Eyebrow" value={s.eyebrow} onChange={(v) => updateItem("hero_slides", i, "eyebrow", v)} />
-                    <Txt label="CTA label" value={s.cta_label} onChange={(v) => updateItem("hero_slides", i, "cta_label", v)} />
-                    <Txt label="Title lead" value={s.title_lead} onChange={(v) => updateItem("hero_slides", i, "title_lead", v)} />
-                    <Txt label="Title accent" value={s.title_accent} onChange={(v) => updateItem("hero_slides", i, "title_accent", v)} />
-                    <Txt label="CTA link" value={s.cta_link} onChange={(v) => updateItem("hero_slides", i, "cta_link", v)} />
-                  </div>
-                </Card>
-              ))}
+              <h2 className="text-2xl font-extrabold text-ink mb-1">Hero Carousel Slides</h2>
+              <p className="text-xs text-ink2 flex items-center gap-2 mb-2"><i className="fa-solid fa-grip-vertical" /> Drag the handle to reorder how slides appear in the hero.</p>
+              <Reorder.Group axis="y" values={content.hero_slides} onReorder={(vals) => update("hero_slides", vals)} className="space-y-4">
+                {content.hero_slides?.map((s, i) => (
+                  <SortableItem key={s.id} value={s} label={`Slide ${i + 1}`}>
+                    <ImgField label="Image" value={s.image} onChange={(v) => updateItem("hero_slides", i, "image", v)} testid={`hero-img-${i}`} />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <Txt label="Eyebrow" value={s.eyebrow} onChange={(v) => updateItem("hero_slides", i, "eyebrow", v)} />
+                      <Txt label="CTA label" value={s.cta_label} onChange={(v) => updateItem("hero_slides", i, "cta_label", v)} />
+                      <Txt label="Title lead" value={s.title_lead} onChange={(v) => updateItem("hero_slides", i, "title_lead", v)} />
+                      <Txt label="Title accent" value={s.title_accent} onChange={(v) => updateItem("hero_slides", i, "title_accent", v)} />
+                      <Txt label="CTA link" value={s.cta_link} onChange={(v) => updateItem("hero_slides", i, "cta_link", v)} />
+                    </div>
+                  </SortableItem>
+                ))}
+              </Reorder.Group>
             </section>
           )}
 
           {tab === "categories" && (
             <section className="space-y-4" data-testid="admin-categories">
-              <h2 className="text-2xl font-extrabold text-ink mb-2">Category Cards</h2>
-              {content.categories?.map((c, i) => (
-                <Card key={c.id}>
-                  <ImgField label={c.title} value={c.image} onChange={(v) => updateItem("categories", i, "image", v)} testid={`cat-img-${i}`} />
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <Txt label="Title" value={c.title} onChange={(v) => updateItem("categories", i, "title", v)} />
-                    <Txt label="Description" value={c.desc} onChange={(v) => updateItem("categories", i, "desc", v)} />
-                  </div>
-                </Card>
-              ))}
+              <h2 className="text-2xl font-extrabold text-ink mb-1">Category Cards</h2>
+              <p className="text-xs text-ink2 flex items-center gap-2 mb-2"><i className="fa-solid fa-grip-vertical" /> Drag the handle to reorder the Home page category cards.</p>
+              <Reorder.Group axis="y" values={content.categories} onReorder={(vals) => update("categories", vals)} className="space-y-4">
+                {content.categories?.map((c, i) => (
+                  <SortableItem key={c.id} value={c} label={c.title}>
+                    <ImgField label="Image" value={c.image} onChange={(v) => updateItem("categories", i, "image", v)} testid={`cat-img-${i}`} />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <Txt label="Title" value={c.title} onChange={(v) => updateItem("categories", i, "title", v)} />
+                      <Txt label="Description" value={c.desc} onChange={(v) => updateItem("categories", i, "desc", v)} />
+                    </div>
+                  </SortableItem>
+                ))}
+              </Reorder.Group>
             </section>
           )}
 
@@ -494,6 +591,66 @@ export default function AdminDashboard() {
                   </SortableItem>
                 ))}
               </Reorder.Group>
+            </section>
+          )}
+
+          {tab === "instagram" && (
+            <section className="space-y-4 max-w-2xl" data-testid="admin-instagram">
+              <h2 className="text-2xl font-extrabold text-ink mb-2">Instagram Feed Sync</h2>
+              <div className="bg-surf border border-line rounded-2xl p-5 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <span className={`w-3 h-3 rounded-full ${ig.connected ? "bg-leaf" : "bg-line"}`} />
+                    <span className="font-bold text-ink" data-testid="ig-status">
+                      {ig.connected ? `Connected as @${ig.username}` : "Not connected"}
+                    </span>
+                  </div>
+                  {ig.connected && (
+                    <button onClick={igDisconnect} className="text-xs font-bold text-sunset">Disconnect</button>
+                  )}
+                </div>
+
+                {ig.connected ? (
+                  <>
+                    <div className="flex flex-wrap items-center gap-3 text-sm text-ink2">
+                      <span>{ig.media_count} post(s) cached</span>
+                      {ig.last_synced && <span>· last synced {new Date(ig.last_synced).toLocaleString()}</span>}
+                    </div>
+                    <div className="flex flex-wrap gap-3">
+                      <button data-testid="ig-sync" onClick={igSync} disabled={saving} className="bg-leaf text-white px-6 py-3 rounded-full text-sm font-bold hover:bg-ink transition-colors disabled:opacity-60">
+                        <i className="fa-solid fa-rotate mr-2" />{saving ? "Syncing…" : "Sync now"}
+                      </button>
+                      <button
+                        data-testid="ig-toggle"
+                        onClick={() => igToggle(!ig.enabled)}
+                        className={`px-6 py-3 rounded-full text-sm font-bold transition-colors ${ig.enabled ? "bg-sun text-ink" : "bg-panel text-ink2 hover:text-ink"}`}
+                      >
+                        <i className={`fa-${ig.enabled ? "solid" : "regular"} fa-circle-check mr-2`} />
+                        {ig.enabled ? "Showing on Home" : "Show feed on Home"}
+                      </button>
+                    </div>
+                    <p className="text-xs text-ink2">When enabled, the Home carousel shows your real Instagram posts instead of the manual ones.</p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-sm text-ink2">Connect your Instagram <b>Business/Creator</b> account. Paste the Instagram-scoped User ID and a long-lived Access Token from your Meta app.</p>
+                    <Txt label="Instagram User ID" value={igForm.ig_user_id} onChange={(v) => setIgForm((f) => ({ ...f, ig_user_id: v }))} testid="ig-userid" />
+                    <Txt label="Long-lived Access Token" value={igForm.access_token} onChange={(v) => setIgForm((f) => ({ ...f, access_token: v }))} testid="ig-token" />
+                    <button data-testid="ig-connect" onClick={igConnect} disabled={saving} className="bg-leaf text-white px-6 py-3 rounded-full text-sm font-bold hover:bg-ink transition-colors disabled:opacity-60">
+                      {saving ? "Connecting…" : "Connect Instagram"}
+                    </button>
+                    <details className="text-xs text-ink2 mt-2">
+                      <summary className="cursor-pointer font-bold">How to get these credentials</summary>
+                      <ol className="list-decimal ml-5 mt-2 space-y-1">
+                        <li>Convert your Instagram account to Business or Creator.</li>
+                        <li>Create a Meta Business app at developers.facebook.com and add the Instagram product (API with Instagram Login).</li>
+                        <li>Grant the <code>instagram_business_basic</code> permission and generate a long-lived access token.</li>
+                        <li>Copy your Instagram User ID and the token here. Tokens last 60 days and auto-refresh.</li>
+                      </ol>
+                    </details>
+                  </>
+                )}
+              </div>
             </section>
           )}
 

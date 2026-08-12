@@ -108,35 +108,81 @@ async def me(admin: dict = Depends(get_current_admin)):
     return admin
 
 
-# ---------- Content routes ----------
+# ---------- Content routes (Draft / Live) ----------
+PUB_ID = "site"
+DRAFT_ID = "site_draft"
+
+
+async def _strip_public(doc: dict) -> dict:
+    doc = dict(doc)
+    doc.pop("_id", None)
+    settings = doc.get("settings", {}) or {}
+    # never leak operational secrets publicly
+    doc["instagram_enabled"] = bool(settings.get("instagram_enabled") and settings.get("instagram", {}).get("access_token"))
+    doc.pop("settings", None)
+    return doc
+
+
 @api.get("/content")
 async def get_content():
-    doc = await db.site_content.find_one({"_id": "site"})
+    doc = await db.site_content.find_one({"_id": PUB_ID})
     if not doc:
         await db.site_content.insert_one(dict(DEFAULT_CONTENT))
-        doc = dict(DEFAULT_CONTENT)
-    doc.pop("_id", None)
-    doc.get("settings", {}).pop("sheets_webhook_url", None)  # don't leak webhook publicly
-    return doc
+        doc = await db.site_content.find_one({"_id": PUB_ID})
+    return await _strip_public(doc)
 
 
 @api.put("/content")
 async def update_content(payload: dict, admin: dict = Depends(get_current_admin)):
+    # Saves to the DRAFT copy — never touches the live site until Publish.
     payload.pop("_id", None)
-    await db.site_content.update_one({"_id": "site"}, {"$set": payload}, upsert=True)
-    doc = await db.site_content.find_one({"_id": "site"})
-    doc.pop("_id", None)
-    return doc
+    payload.pop("settings", None)  # settings live on the published doc only
+    base = await db.site_content.find_one({"_id": DRAFT_ID}) or await db.site_content.find_one({"_id": PUB_ID}) or dict(DEFAULT_CONTENT)
+    base = dict(base)
+    base.update(payload)
+    base["_id"] = DRAFT_ID
+    await db.site_content.replace_one({"_id": DRAFT_ID}, base, upsert=True)
+    out = dict(base)
+    out.pop("_id", None)
+    return out
 
 
 @api.get("/admin/content")
 async def get_admin_content(admin: dict = Depends(get_current_admin)):
-    doc = await db.site_content.find_one({"_id": "site"})
+    # Returns the draft (what you're editing); falls back to published.
+    doc = await db.site_content.find_one({"_id": DRAFT_ID}) or await db.site_content.find_one({"_id": PUB_ID})
     if not doc:
         await db.site_content.insert_one(dict(DEFAULT_CONTENT))
-        doc = await db.site_content.find_one({"_id": "site"})
+        doc = await db.site_content.find_one({"_id": PUB_ID})
+    doc = dict(doc)
     doc.pop("_id", None)
+    doc["has_unpublished"] = bool(await db.site_content.find_one({"_id": DRAFT_ID}))
     return doc
+
+
+@api.get("/admin/content/status")
+async def content_status(admin: dict = Depends(get_current_admin)):
+    return {"has_unpublished": bool(await db.site_content.find_one({"_id": DRAFT_ID}))}
+
+
+@api.post("/admin/publish")
+async def publish_content(admin: dict = Depends(get_current_admin)):
+    draft = await db.site_content.find_one({"_id": DRAFT_ID})
+    if not draft:
+        raise HTTPException(status_code=400, detail="No changes to publish.")
+    pub = await db.site_content.find_one({"_id": PUB_ID}) or {}
+    draft = dict(draft)
+    draft["_id"] = PUB_ID
+    draft["settings"] = pub.get("settings", draft.get("settings", {}))  # preserve live settings
+    await db.site_content.replace_one({"_id": PUB_ID}, draft, upsert=True)
+    await db.site_content.delete_one({"_id": DRAFT_ID})
+    return {"published": True}
+
+
+@api.post("/admin/discard")
+async def discard_draft(admin: dict = Depends(get_current_admin)):
+    await db.site_content.delete_one({"_id": DRAFT_ID})
+    return {"discarded": True}
 
 
 # ---------- Enquiry routes ----------
@@ -191,8 +237,125 @@ async def get_settings(admin: dict = Depends(get_current_admin)):
 
 @api.put("/admin/settings")
 async def update_settings(payload: dict, admin: dict = Depends(get_current_admin)):
-    await db.site_content.update_one({"_id": "site"}, {"$set": {"settings": payload}}, upsert=True)
-    return payload
+    cur = await db.site_content.find_one({"_id": "site"}, {"settings": 1})
+    merged = {**((cur or {}).get("settings", {}) or {}), **payload}
+    await db.site_content.update_one({"_id": "site"}, {"$set": {"settings": merged}}, upsert=True)
+    return merged
+
+
+# ---------- Instagram feed sync (Instagram API with Instagram Login) ----------
+IG_VERSION = os.environ.get("INSTAGRAM_API_VERSION", "v23.0")
+IG_GRAPH = f"https://graph.instagram.com/{IG_VERSION}"
+
+
+async def _ig_settings():
+    doc = await db.site_content.find_one({"_id": "site"}, {"settings": 1})
+    return ((doc or {}).get("settings", {}) or {}).get("instagram", {}) or {}
+
+
+async def _ig_save(patch: dict):
+    cur = await db.site_content.find_one({"_id": "site"}, {"settings": 1})
+    settings = (cur or {}).get("settings", {}) or {}
+    settings["instagram"] = {**(settings.get("instagram", {}) or {}), **patch}
+    await db.site_content.update_one({"_id": "site"}, {"$set": {"settings": settings}}, upsert=True)
+
+
+class InstagramConnectInput(BaseModel):
+    ig_user_id: str
+    access_token: str
+
+
+@api.get("/admin/instagram/status")
+async def ig_status(admin: dict = Depends(get_current_admin)):
+    s = await _ig_settings()
+    count = await db.instagram_media.count_documents({})
+    return {
+        "connected": bool(s.get("access_token") and s.get("ig_user_id")),
+        "username": s.get("username"),
+        "enabled": bool((await _root_settings()).get("instagram_enabled")),
+        "media_count": count,
+        "last_synced": s.get("last_synced"),
+    }
+
+
+async def _root_settings():
+    doc = await db.site_content.find_one({"_id": "site"}, {"settings": 1})
+    return (doc or {}).get("settings", {}) or {}
+
+
+@api.post("/admin/instagram/connect")
+async def ig_connect(body: InstagramConnectInput, admin: dict = Depends(get_current_admin)):
+    try:
+        async with httpx.AsyncClient(timeout=20) as c:
+            r = await c.get(f"{IG_GRAPH}/{body.ig_user_id}", params={"fields": "id,username,account_type", "access_token": body.access_token})
+        r.raise_for_status()
+        profile = r.json()
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Could not verify Instagram account: {e}")
+    if profile.get("account_type") not in ("BUSINESS", "CREATOR"):
+        raise HTTPException(status_code=400, detail="The Instagram account must be a Business or Creator account.")
+    now = datetime.now(timezone.utc)
+    await _ig_save({
+        "ig_user_id": body.ig_user_id,
+        "access_token": body.access_token,
+        "username": profile.get("username"),
+        "token_issued_at": now.isoformat(),
+    })
+    return {"connected": True, "username": profile.get("username")}
+
+
+@api.post("/admin/instagram/disconnect")
+async def ig_disconnect(admin: dict = Depends(get_current_admin)):
+    await _ig_save({"ig_user_id": "", "access_token": "", "username": None})
+    await db.instagram_media.delete_many({})
+    return {"connected": False}
+
+
+@api.post("/admin/instagram/toggle")
+async def ig_toggle(payload: dict, admin: dict = Depends(get_current_admin)):
+    enabled = bool(payload.get("enabled"))
+    await update_settings({"instagram_enabled": enabled}, admin)
+    return {"enabled": enabled}
+
+
+@api.post("/admin/instagram/sync")
+async def ig_sync(admin: dict = Depends(get_current_admin)):
+    s = await _ig_settings()
+    if not (s.get("access_token") and s.get("ig_user_id")):
+        raise HTTPException(status_code=400, detail="Connect an Instagram account first.")
+    try:
+        async with httpx.AsyncClient(timeout=25) as c:
+            r = await c.get(
+                f"{IG_GRAPH}/{s['ig_user_id']}/media",
+                params={"fields": "id,media_type,media_url,thumbnail_url,caption,permalink,timestamp", "limit": 24, "access_token": s["access_token"]},
+            )
+        r.raise_for_status()
+        data = r.json()
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"Instagram sync failed: {e}")
+    items = data.get("data", [])
+    for it in items:
+        await db.instagram_media.replace_one({"_id": it["id"]}, {"_id": it["id"], **it, "synced_at": datetime.now(timezone.utc).isoformat()}, upsert=True)
+    await _ig_save({"last_synced": datetime.now(timezone.utc).isoformat()})
+    return {"synced": len(items)}
+
+
+@api.get("/instagram/feed")
+async def ig_feed():
+    if not (await _root_settings()).get("instagram_enabled"):
+        return {"data": []}
+    rows = await db.instagram_media.find({}, {"synced_at": 0}).sort("timestamp", -1).limit(24).to_list(24)
+    out = []
+    for it in rows:
+        out.append({
+            "id": it.get("_id"),
+            "platform": "instagram",
+            "image": it.get("thumbnail_url") if it.get("media_type") == "VIDEO" else it.get("media_url"),
+            "caption": (it.get("caption") or "Instagram post")[:160],
+            "link": it.get("permalink"),
+            "video_url": "",
+        })
+    return {"data": out}
 
 
 @api.post("/admin/upload")
