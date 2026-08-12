@@ -5,6 +5,7 @@ import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
 import { Reveal } from "@/components/Reveal";
 import { useContent, sortByPriority } from "@/hooks/useContent";
+import Seo from "@/components/Seo";
 
 export default function Catalog() {
   const { data } = useContent();
@@ -31,6 +32,22 @@ export default function Catalog() {
 
   return (
     <div className="bg-bg">
+      <Seo
+        title="E-Catalog — Food Containers, Eco Disposables, Paper, Foil & PLA"
+        description="Browse Excel Packaging's full e-catalog: eco-friendly sugarcane disposables, PP & PET food containers, kraft paper boxes & cups, aluminium foil containers and corn-starch (PLA) products. Bulk B2B supply across Chennai."
+        keywords="food containers Chennai, eco friendly disposables, sugarcane bagasse plates, PP containers, PET boxes, kraft paper boxes, aluminium foil containers, corn starch PLA products, wraps and foils, bulk food packaging Chennai"
+        path="/catalog"
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "ItemList",
+          name: "Excel Packaging E-Catalog",
+          itemListElement: shown.slice(0, 20).map((p, i) => ({
+            "@type": "ListItem",
+            position: i + 1,
+            name: p.name,
+          })),
+        }}
+      />
       <Navbar />
 
       {/* Hero */}

@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Reveal } from "@/components/Reveal";
 import { useContent } from "@/hooks/useContent";
+import Seo from "@/components/Seo";
 import { resolveImg } from "@/lib/api";
 
 // Self-contained "Cleaning & Hospitality Chemicals" (EliteCare) page.
@@ -29,6 +30,12 @@ export default function Cleaning() {
 
   return (
     <div className="bg-bg">
+      <Seo
+        title="Cleaning & Hospitality Chemicals — Sanitization & Housekeeping Supplies Chennai"
+        description="Excel EliteCare: commercial-grade cleaning and sanitization chemicals for hotels, hospitals and food service in Chennai. Glass & floor cleaners, heavy-duty degreasers, hospital-grade disinfectants, laundry and kitchen hygiene supplies — bulk B2B supply."
+        keywords="cleaning chemicals Chennai, sanitization supplies, housekeeping chemicals, hospitality cleaning supplies, disinfectant supplier Chennai, floor cleaner concentrate, degreaser, kitchen hygiene chemicals, laundry chemicals B2B"
+        path="/cleaning"
+      />
       <Navbar />
 
       {/* Hero */}

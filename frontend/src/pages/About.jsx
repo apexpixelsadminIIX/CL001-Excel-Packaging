@@ -4,6 +4,7 @@ import { Reveal } from "@/components/Reveal";
 import { motion } from "framer-motion";
 import { useContent } from "@/hooks/useContent";
 import { resolveImg } from "@/lib/api";
+import Seo from "@/components/Seo";
 
 export default function About() {
   const { data } = useContent();
@@ -12,6 +13,12 @@ export default function About() {
 
   return (
     <div className="bg-bg">
+      <Seo
+        title="About Us — Chennai's B2B Food Packaging Supplier Since 2019"
+        description="Learn about Excel Packaging and Taste Foods, Chennai's premier B2B supplier of food-grade packaging, eco-friendly disposables and hospitality chemicals. 100% food-safe materials, eco-conscious range and bulk fulfilment since 2019."
+        keywords="about Excel Packaging, food packaging company Chennai, B2B packaging supplier, eco friendly packaging manufacturer Chennai, food safe packaging supplier"
+        path="/about"
+      />
       <Navbar />
 
       {/* Hero */}

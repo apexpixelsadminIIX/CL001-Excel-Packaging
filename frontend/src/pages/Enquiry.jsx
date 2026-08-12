@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import { Reveal } from "@/components/Reveal";
 import { api, formatApiError } from "@/lib/api";
 import { useContent } from "@/hooks/useContent";
+import Seo from "@/components/Seo";
 
 const EMPTY = {
   company_name: "", contact_name: "", email: "", phone: "",
@@ -62,6 +63,12 @@ export default function Enquiry() {
 
   return (
     <div className="bg-bg">
+      <Seo
+        title="Contact & Bulk Enquiry — Get a Custom Food Packaging Quote in Chennai"
+        description="Request a custom quote for bulk food packaging, eco disposables or cleaning chemicals in Chennai. Contact Excel Packaging and Taste Foods by phone, email or the enquiry form — fast response for restaurants, hotels and cloud kitchens."
+        keywords="food packaging quote Chennai, bulk packaging enquiry, contact food packaging supplier Chennai, B2B packaging quote, custom packaging Chennai"
+        path="/enquiry"
+      />
       <Navbar />
       <main className="pt-36 pb-16 px-6 md:px-12 max-w-7xl mx-auto">
         <div className="flex flex-col lg:flex-row gap-14 lg:gap-20 items-start">

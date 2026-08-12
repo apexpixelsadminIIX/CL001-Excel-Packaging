@@ -9,6 +9,7 @@ import { Reveal } from "@/components/Reveal";
 import { useContent, sortByPriority, useInstagramFeed } from "@/hooks/useContent";
 import { resolveImg } from "@/lib/api";
 import ProductCard from "@/components/ProductCard";
+import Seo from "@/components/Seo";
 
 const WHY = [
   { icon: "fa-award", title: "Quality Standards", body: "100% food-grade materials ensuring maximum safety for consumers.", bg: "bg-leaf/20", ic: "bg-leaf text-white" },
@@ -29,8 +30,39 @@ export default function Home() {
   const social = igEnabled && igFeed && igFeed.length > 0 ? igFeed : manualSocial;
   const featured = sortByPriority((data?.products || []).filter((p) => p.featured)).slice(0, 4);
 
+  const c = data?.contact || {};
+  const businessLd = {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    name: "Excel Packaging and Taste Foods",
+    image: "https://static.prod-images.emergentagent.com/jobs/27c2a22b-2eb8-4581-be09-f7ea1e7181d7/images/759ad57b24c38f656bc4edf16f9c437a8a614e4d9a349effd643f309d034608a.jpeg",
+    description: "Chennai-based B2B supplier of food-grade packaging, eco-friendly disposables, aluminium foil products, and cleaning & hospitality chemicals.",
+    url: typeof window !== "undefined" ? window.location.origin : "",
+    telephone: c.phone || "+91 98765 43210",
+    email: c.email || "enquiry@excelpackaging.in",
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: c.address_line1 || "Industrial Estate, Guindy",
+      addressLocality: "Chennai",
+      addressRegion: "Tamil Nadu",
+      postalCode: "600032",
+      addressCountry: "IN",
+    },
+    areaServed: "Chennai, Tamil Nadu",
+    priceRange: "₹₹",
+    foundingDate: "2019",
+    sameAs: [c.instagram, c.linkedin, c.facebook].filter(Boolean),
+  };
+
   return (
     <div className="bg-bg">
+      <Seo
+        title="B2B Food Packaging, Eco Disposables & Cleaning Supplies in Chennai"
+        description="Excel Packaging and Taste Foods — Chennai's trusted B2B supplier of food-safe containers, eco-friendly disposables, sugarcane bagasse products, wraps & aluminium foils, and cleaning & sanitization chemicals. Bulk packaging for restaurants, cloud kitchens & hotels since 2019."
+        keywords="food packaging Chennai, chennai food packaging, eco friendly packaging, food safe packaging, wraps and foils, aluminium foil containers, bulk packaging for food products, B2B food packaging, food containers Chennai, biodegradable disposables, sugarcane bagasse plates, cleaning chemicals, sanitization supplies, hospitality chemicals Chennai"
+        path="/"
+        jsonLd={businessLd}
+      />
       <Navbar />
       <HeroCarousel slides={slides} />
 
