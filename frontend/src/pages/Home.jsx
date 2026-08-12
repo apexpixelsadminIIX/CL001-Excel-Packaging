@@ -11,10 +11,10 @@ import { resolveImg } from "@/lib/api";
 import ProductCard from "@/components/ProductCard";
 
 const WHY = [
-  { icon: "fa-award", title: "Quality Standards", body: "100% food-grade materials ensuring maximum safety for consumers." },
-  { icon: "fa-hand-sparkles", title: "Hygiene-First", body: "Rigorous handling protocols to maintain zero-contamination standards." },
-  { icon: "fa-seedling", title: "Eco-Conscious", body: "Comprehensive range of biodegradable disposables for modern brands." },
-  { icon: "fa-truck-fast", title: "Fast Delivery", body: "Optimised bulk fulfilment network for quick local turnaround in Chennai." },
+  { icon: "fa-award", title: "Quality Standards", body: "100% food-grade materials ensuring maximum safety for consumers.", bg: "bg-leaf/20", ic: "bg-leaf text-white" },
+  { icon: "fa-hand-sparkles", title: "Hygiene-First", body: "Rigorous handling protocols to maintain zero-contamination standards.", bg: "bg-sun/25", ic: "bg-sun text-ink" },
+  { icon: "fa-seedling", title: "Eco-Conscious", body: "Comprehensive range of biodegradable disposables for modern brands.", bg: "bg-pistachio/50", ic: "bg-leaf text-white" },
+  { icon: "fa-truck-fast", title: "Fast Delivery", body: "Optimised bulk fulfilment network for quick local turnaround in Chennai.", bg: "bg-sunset/15", ic: "bg-sunset text-white" },
 ];
 
 export default function Home() {
@@ -129,7 +129,7 @@ export default function Home() {
 
       {/* Featured Products */}
       {featured.length > 0 && (
-        <section className="py-24 md:py-32 px-6 md:px-12" data-testid="featured-section">
+        <section className="py-24 md:py-32 px-6 md:px-12 bg-sun/15 rounded-jumbo mx-3 md:mx-4" data-testid="featured-section">
           <div className="max-w-7xl mx-auto">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-14 gap-6">
               <Reveal>
@@ -167,8 +167,8 @@ export default function Home() {
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {WHY.map((w, i) => (
             <Reveal key={w.title} delay={i * 0.08}>
-              <div className="bg-surf p-8 rounded-[2rem] border border-line hover:border-leaf transition-colors h-full">
-                <div className="w-14 h-14 bg-panel rounded-2xl flex items-center justify-center text-2xl text-leaf mb-6">
+              <div className={`${w.bg} p-8 rounded-[2rem] border border-line/50 hover:-translate-y-1 transition-transform duration-300 h-full`}>
+                <div className={`w-14 h-14 ${w.ic} rounded-2xl flex items-center justify-center text-2xl mb-6 shadow-card`}>
                   <i className={`fa-solid ${w.icon}`} />
                 </div>
                 <h4 className="text-xl font-bold text-ink mb-3">{w.title}</h4>
@@ -207,11 +207,11 @@ export default function Home() {
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
           {testimonials.map((t, i) => (
             <Reveal key={t.id} delay={i * 0.1}>
-              <div className="p-9 bg-surf rounded-[2rem] shadow-card border border-line h-full flex flex-col">
-                <i className="fa-solid fa-quote-left text-sun text-3xl mb-5" />
+              <div className={`p-9 rounded-[2rem] shadow-card border-t-4 h-full flex flex-col ${["bg-leaf/15 border-leaf", "bg-sunset/10 border-sunset", "bg-pistachio/40 border-leaf"][i % 3]}`}>
+                <i className="fa-solid fa-quote-left text-sunset text-3xl mb-5" />
                 <p className="text-ink text-lg mb-7 leading-relaxed font-medium flex-1">"{t.quote}"</p>
-                <div className="flex items-center gap-4 border-t border-line pt-6">
-                  <img src={t.avatar} alt={t.name} className="w-12 h-12 rounded-full object-cover" />
+                <div className="flex items-center gap-4 border-t border-ink/10 pt-6">
+                  <img src={t.avatar} alt={t.name} className="w-12 h-12 rounded-full object-cover ring-2 ring-white" />
                   <div>
                     <p className="font-bold text-ink">{t.name}</p>
                     <p className="text-xs text-ink2 uppercase tracking-wider font-semibold">{t.role}</p>

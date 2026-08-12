@@ -20,10 +20,10 @@ module.exports = {
         // Brand palette
         ink: '#1A1C19',
         ink2: '#5C6159',
-        bg: '#F9FBF7',
+        bg: '#F1F7E6',
         surf: '#FFFFFF',
-        panel: '#F0F4ED',
-        line: '#E0E5DD',
+        panel: '#E7F1D3',
+        line: '#DCE7CE',
         leaf: '#93C572',      // pastel green (primary supporting)
         pistachio: '#BAED91', // pistachio green
         sun: '#FFDA03',       // sandy / sunflower yellow (primary accent)
