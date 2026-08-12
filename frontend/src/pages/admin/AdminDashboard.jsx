@@ -16,6 +16,10 @@ const TABS = [
   { id: "settings", label: "Settings", icon: "fa-gear" },
 ];
 
+const CAT_LABELS = { eco: "Eco-Friendly", plastic: "Plastic", paper: "Paper", cornstarch: "Corn Starch (PLA)", foil: "Aluminum Foil" };
+const CLEAN_LABELS = { housekeeping: "Housekeeping", laundry: "Laundry Care", kitchen: "Kitchen Hygiene", sanitization: "Sanitization" };
+const selCls = "w-full bg-panel border border-line rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-leaf";
+
 function ImgField({ label, value, onChange, testid }) {
   const [busy, setBusy] = useState(false);
   const onFile = async (e) => {
@@ -92,6 +96,16 @@ export default function AdminDashboard() {
     setContent((c) => {
       const arr = [...c[key]];
       arr[idx] = { ...arr[idx], [field]: value };
+      return { ...c, [key]: arr };
+    });
+  const addItem = (key, tmpl) =>
+    setContent((c) => ({ ...c, [key]: [...(c[key] || []), { id: `${key.slice(0, 4)}-${Date.now()}`, ...tmpl }] }));
+  const removeItem = (key, idx) =>
+    setContent((c) => ({ ...c, [key]: c[key].filter((_, i) => i !== idx) }));
+  const setCategory = (key, idx, catId, labels) =>
+    setContent((c) => {
+      const arr = [...c[key]];
+      arr[idx] = { ...arr[idx], category: catId, category_label: labels[catId] };
       return { ...c, [key]: arr };
     });
 
@@ -243,13 +257,34 @@ export default function AdminDashboard() {
 
           {tab === "products" && (
             <section className="space-y-4" data-testid="admin-products">
-              <h2 className="text-2xl font-extrabold text-ink mb-2">Products ({content.products?.length})</h2>
+              <div className="flex items-center justify-between mb-2">
+                <h2 className="text-2xl font-extrabold text-ink">Products ({content.products?.length})</h2>
+                <button
+                  data-testid="add-product"
+                  onClick={() => addItem("products", { name: "New Product", category: "eco", category_label: CAT_LABELS.eco, badge: "In Stock", desc: "", image: "" })}
+                  className="bg-leaf text-white px-5 py-2.5 rounded-full text-sm font-bold hover:bg-ink transition-colors"
+                >
+                  <i className="fa-solid fa-plus mr-2" />Add Product
+                </button>
+              </div>
               {content.products?.map((p, i) => (
                 <Card key={p.id}>
-                  <ImgField label={`${p.name} · ${p.category_label}`} value={p.image} onChange={(v) => updateItem("products", i, "image", v)} testid={`prod-img-${i}`} />
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-leaf uppercase tracking-widest">{p.category_label}</span>
+                    <button data-testid={`remove-product-${i}`} onClick={() => removeItem("products", i)} aria-label="Remove product" className="w-9 h-9 rounded-full text-sunset hover:bg-sunset hover:text-white flex items-center justify-center transition-colors">
+                      <i className="fa-solid fa-trash-can" />
+                    </button>
+                  </div>
+                  <ImgField label={p.name} value={p.image} onChange={(v) => updateItem("products", i, "image", v)} testid={`prod-img-${i}`} />
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                     <Txt label="Name" value={p.name} onChange={(v) => updateItem("products", i, "name", v)} />
                     <Txt label="Badge" value={p.badge} onChange={(v) => updateItem("products", i, "badge", v)} />
+                    <div>
+                      <label className="text-[11px] font-bold text-ink2 uppercase tracking-wide mb-1 block">Category</label>
+                      <select data-testid={`prod-cat-${i}`} className={selCls} value={p.category} onChange={(e) => setCategory("products", i, e.target.value, CAT_LABELS)}>
+                        {Object.entries(CAT_LABELS).map(([id, label]) => <option key={id} value={id}>{label}</option>)}
+                      </select>
+                    </div>
                     <div className="md:col-span-3"><Txt label="Description" area value={p.desc} onChange={(v) => updateItem("products", i, "desc", v)} /></div>
                   </div>
                 </Card>
@@ -259,13 +294,34 @@ export default function AdminDashboard() {
 
           {tab === "cleaning" && (
             <section className="space-y-4" data-testid="admin-cleaning">
-              <h2 className="text-2xl font-extrabold text-ink mb-2">Cleaning & Hospitality Products</h2>
+              <div className="flex items-center justify-between mb-2">
+                <h2 className="text-2xl font-extrabold text-ink">Cleaning & Hospitality ({content.cleaning_products?.length})</h2>
+                <button
+                  data-testid="add-cleaning"
+                  onClick={() => addItem("cleaning_products", { name: "New Chemical", category: "housekeeping", category_label: CLEAN_LABELS.housekeeping, tag: "New", desc: "", image: "" })}
+                  className="bg-leaf text-white px-5 py-2.5 rounded-full text-sm font-bold hover:bg-ink transition-colors"
+                >
+                  <i className="fa-solid fa-plus mr-2" />Add Product
+                </button>
+              </div>
               {content.cleaning_products?.map((p, i) => (
                 <Card key={p.id}>
-                  <ImgField label={`${p.name} · ${p.category_label}`} value={p.image} onChange={(v) => updateItem("cleaning_products", i, "image", v)} testid={`clean-img-${i}`} />
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-leaf uppercase tracking-widest">{p.category_label}</span>
+                    <button data-testid={`remove-cleaning-${i}`} onClick={() => removeItem("cleaning_products", i)} aria-label="Remove product" className="w-9 h-9 rounded-full text-sunset hover:bg-sunset hover:text-white flex items-center justify-center transition-colors">
+                      <i className="fa-solid fa-trash-can" />
+                    </button>
+                  </div>
+                  <ImgField label={p.name} value={p.image} onChange={(v) => updateItem("cleaning_products", i, "image", v)} testid={`clean-img-${i}`} />
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                     <Txt label="Name" value={p.name} onChange={(v) => updateItem("cleaning_products", i, "name", v)} />
                     <Txt label="Tag" value={p.tag} onChange={(v) => updateItem("cleaning_products", i, "tag", v)} />
+                    <div>
+                      <label className="text-[11px] font-bold text-ink2 uppercase tracking-wide mb-1 block">Category</label>
+                      <select data-testid={`clean-cat-${i}`} className={selCls} value={p.category} onChange={(e) => setCategory("cleaning_products", i, e.target.value, CLEAN_LABELS)}>
+                        {Object.entries(CLEAN_LABELS).map(([id, label]) => <option key={id} value={id}>{label}</option>)}
+                      </select>
+                    </div>
                     <div className="md:col-span-3"><Txt label="Description" area value={p.desc} onChange={(v) => updateItem("cleaning_products", i, "desc", v)} /></div>
                   </div>
                 </Card>
@@ -275,15 +331,30 @@ export default function AdminDashboard() {
 
           {tab === "social" && (
             <section className="space-y-4" data-testid="admin-social">
-              <h2 className="text-2xl font-extrabold text-ink mb-2">Social Posts & Videos</h2>
-              <p className="text-sm text-ink2 mb-2">Set the image/thumbnail, caption, platform and outbound link for each tile shown on the Home page.</p>
+              <div className="flex items-center justify-between mb-2">
+                <h2 className="text-2xl font-extrabold text-ink">Social Posts & Videos ({content.social_posts?.length})</h2>
+                <button
+                  data-testid="add-social"
+                  onClick={() => addItem("social_posts", { platform: "instagram", image: "", caption: "New post", link: "https://instagram.com" })}
+                  className="bg-leaf text-white px-5 py-2.5 rounded-full text-sm font-bold hover:bg-ink transition-colors"
+                >
+                  <i className="fa-solid fa-plus mr-2" />Add Post
+                </button>
+              </div>
+              <p className="text-sm text-ink2 mb-2">These appear in the Home page social carousel (one slide at a time). Set the image/thumbnail, caption, platform and outbound link.</p>
               {content.social_posts?.map((s, i) => (
                 <Card key={s.id}>
-                  <ImgField label={`Post ${i + 1} (${s.platform})`} value={s.image} onChange={(v) => updateItem("social_posts", i, "image", v)} testid={`social-img-${i}`} />
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-leaf uppercase tracking-widest">Post {i + 1}</span>
+                    <button data-testid={`remove-social-${i}`} onClick={() => removeItem("social_posts", i)} aria-label="Remove post" className="w-9 h-9 rounded-full text-sunset hover:bg-sunset hover:text-white flex items-center justify-center transition-colors">
+                      <i className="fa-solid fa-trash-can" />
+                    </button>
+                  </div>
+                  <ImgField label={`Image / thumbnail (${s.platform})`} value={s.image} onChange={(v) => updateItem("social_posts", i, "image", v)} testid={`social-img-${i}`} />
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                     <div>
                       <label className="text-[11px] font-bold text-ink2 uppercase tracking-wide mb-1 block">Platform</label>
-                      <select className="w-full bg-panel border border-line rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-leaf" value={s.platform} onChange={(e) => updateItem("social_posts", i, "platform", e.target.value)}>
+                      <select data-testid={`social-platform-${i}`} className={selCls} value={s.platform} onChange={(e) => updateItem("social_posts", i, "platform", e.target.value)}>
                         <option value="instagram">Instagram</option>
                         <option value="youtube">YouTube</option>
                       </select>

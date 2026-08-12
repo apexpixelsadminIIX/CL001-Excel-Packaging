@@ -124,6 +124,7 @@ DEFAULT_CONTENT = {
         {"id": "sp4", "platform": "instagram", "image": IMG["sugarcane_plates"], "caption": "Sugarcane bagasse plates — sturdy, sleak-proof, 100% compostable", "link": "https://instagram.com"},
         {"id": "sp5", "platform": "instagram", "image": IMG["eco_box_kitchen"], "caption": "Behind the scenes at our Guindy fulfilment hub 📦", "link": "https://instagram.com"},
         {"id": "sp6", "platform": "youtube", "image": IMG["warehouse2"], "caption": "Bulk logistics: same-day dispatch for Chennai orders", "link": "https://youtube.com"},
+        {"id": "sp7", "platform": "instagram", "image": IMG["foil_tray"], "caption": "Heat-retentive foil containers keeping meals hot on the go 🔥", "link": "https://instagram.com"},
     ],
     "contact": {
         "phone": "+91 98765 43210",

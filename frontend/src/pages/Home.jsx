@@ -4,6 +4,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import HeroCarousel from "@/components/HeroCarousel";
 import Marquee from "@/components/Marquee";
+import SocialCarousel from "@/components/SocialCarousel";
 import { Reveal } from "@/components/Reveal";
 import { useContent } from "@/hooks/useContent";
 import { resolveImg } from "@/lib/api";
@@ -160,29 +161,7 @@ export default function Home() {
               </div>
             </Reveal>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            {social.map((post, i) => (
-              <motion.a
-                key={post.id}
-                href={post.link}
-                target="_blank"
-                rel="noreferrer"
-                data-testid={`social-post-${post.id}`}
-                initial={{ opacity: 0, scale: 0.92 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: (i % 6) * 0.05 }}
-                className={`group relative rounded-[1.4rem] overflow-hidden aspect-square ${i % 5 === 0 ? "col-span-2 row-span-2 aspect-auto" : ""}`}
-              >
-                <img src={resolveImg(post.image)} alt={post.caption} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                <div className="absolute inset-0 bg-gradient-to-t from-ink/85 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                <div className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/90 flex items-center justify-center text-ink">
-                  <i className={`fa-brands ${post.platform === "youtube" ? "fa-youtube" : "fa-instagram"}`} />
-                </div>
-                <p className="absolute bottom-0 left-0 right-0 p-4 text-white text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity">{post.caption}</p>
-              </motion.a>
-            ))}
-          </div>
+          <SocialCarousel posts={social} />
         </div>
       </section>
 
