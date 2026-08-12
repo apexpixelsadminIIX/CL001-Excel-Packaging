@@ -1,0 +1,167 @@
+{
+  "project_context": {
+    "brand_name": "Excel Packaging and Taste Foods",
+    "description": "B2B supplier of food containers, eco-friendly disposables, and hygiene/housekeeping supplies based in Chennai.",
+    "theme": "Awwwards Site-of-the-Day level, premium, bold, kinetic. Rounded-corner, soft-shadow 'pill and card' visual language.",
+    "tagline": "Since 2019",
+    "app_type": "hybrid_fullstack"
+  },
+  "colors": {
+    "primary_accent": {
+      "name": "Sandy/Sunflower Yellow",
+      "hex": "#FFDA03",
+      "usage": "Primary accent, subtle highlights, select CTA backgrounds"
+    },
+    "secondary_accent": {
+      "name": "Sunset Orange",
+      "hex": "#FD5E53",
+      "usage": "CTAs, urgent highlights, hover states"
+    },
+    "surface_primary": {
+      "name": "Pastel Green",
+      "hex": "#93C572",
+      "usage": "Primary supporting color across backgrounds, panel accents"
+    },
+    "surface_secondary": {
+      "name": "Pistachio Green",
+      "hex": "#BAED91",
+      "usage": "Lighter supporting surface color, soft cards"
+    },
+    "ink": {
+      "name": "Ink",
+      "hex": "#1A1C19",
+      "usage": "Primary text, near-black for high contrast"
+    },
+    "ink_muted": {
+      "name": "Ink 2",
+      "hex": "#5C6159",
+      "usage": "Secondary text, descriptive body copy"
+    },
+    "background_base": {
+      "name": "Background",
+      "hex": "#F9FBF7",
+      "usage": "Main page background, off-white clean readability"
+    },
+    "surface_white": {
+      "name": "Surface",
+      "hex": "#FFFFFF",
+      "usage": "Pill and card backgrounds"
+    },
+    "border_line": {
+      "name": "Line",
+      "hex": "#E0E5DD",
+      "usage": "Subtle dividers, borders on cards"
+    },
+    "panel": {
+      "name": "Panel",
+      "hex": "#F0F4ED",
+      "usage": "Secondary container background"
+    }
+  },
+  "typography": {
+    "primary_font": "Plus Jakarta Sans",
+    "hierarchy": {
+      "h1_hero": "text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tighter leading-none text-[#1A1C19]",
+      "h2_section": "text-4xl md:text-5xl font-bold tracking-tight text-[#1A1C19]",
+      "h3_card": "text-2xl font-semibold text-[#1A1C19]",
+      "body_large": "text-lg text-[#5C6159] leading-relaxed",
+      "body": "text-base text-[#5C6159] leading-relaxed",
+      "pill_label": "text-sm font-bold uppercase tracking-widest text-[#1A1C19]"
+    },
+    "instructions": "Use Plus Jakarta Sans globally. Maintain tight tracking on headings for a premium, bold feel. Use Font Awesome 6 for all icons."
+  },
+  "visual_enhancers": {
+    "border_radius": {
+      "jumbo": "rounded-[3rem]",
+      "card": "rounded-3xl",
+      "pill": "rounded-full"
+    },
+    "shadows": {
+      "soft_card": "shadow-[0_8px_30px_rgb(0,0,0,0.04)]",
+      "hover_lift": "shadow-[0_20px_40px_rgb(0,0,0,0.08)]"
+    },
+    "glassmorphism": "Avoid heavy transparent dark glass. Use white/off-white translucent panels: bg-white/80 backdrop-blur-xl border border-[#E0E5DD].",
+    "borders": "1px solid #E0E5DD (line) to define card edges cleanly alongside the soft shadow."
+  },
+  "grids_and_layouts": {
+    "spacing": "Extremely generous padding. Use py-24 or py-32 for section spacing. Use gap-8 or gap-12 for grids.",
+    "bento_grid": "For 'Our Story' or 'Categories', use an asymmetrical bento grid (e.g., grid-cols-1 md:grid-cols-12 with col-span variations like col-span-8 and col-span-4).",
+    "product_grid": "E-Catalog uses uniform, highly structured 3-column or 4-column grids with pill filters cleanly aligned above."
+  },
+  "components": {
+    "hero_carousel": "Auto-rotating. Kinetic masked line-by-line reveal for text (using framer-motion). Subtly scaling background image for parallax effect. Use dot/arrow nav treated as floating glass pills.",
+    "marquee": "Slow editorial marquee using framer-motion or react-fast-marquee. Use large outline text or elegant typography with dots/icons separating brand highlights.",
+    "category_cards": "Soft-shadow, jumbo-radius cards with real product photography spotlighted. Include 'View E-Catalog' CTAs in secondary accent color (Sunset Orange).",
+    "filter_pills": "E-Catalog filters (Eco-friendly, Plastic, Paper, etc.). Pill-shaped, active state uses Pistachio Green or Sunset Orange.",
+    "manifesto_chapters": "Numbered list layout for About page (mission/vision). Massive typography for the numbers (e.g., '01', '02' in Sandy Yellow), offset with text.",
+    "cta_banner": "Need a Custom Quote banner. Full width, jumbo rounded corners, heavily utilizing the primary Green or Yellow backgrounds with bold contrasting typography."
+  },
+  "motion_and_interactions": {
+    "scrolling": "Implement Lenis for smooth, momentum-based scrolling. Critical for the 'award-worthy' feel.",
+    "scroll_reveals": "Use framer-motion. Elements should fade in and slide up slightly (e.g., y: 30, opacity: 0 -> y: 0, opacity: 1) on scroll.",
+    "micro_interactions": "Cards lift on hover (-translate-y-2) and shadows expand. Buttons scale down slightly on tap (scale: 0.95).",
+    "hero_load": "Text must use overflow hidden and animate line-by-line from bottom to top on mount."
+  },
+  "media_and_assets": {
+    "image_treatment": "Spotlight effect. Where possible, show product images clearly clipped or within aesthetic framed windows (rounded-3xl). Avoid edge-to-edge images unless in hero.",
+    "images": [
+      {
+        "category": "Hero / Eco Packaging",
+        "url": "https://images.pexels.com/photos/10418013/pexels-photo-10418013.jpeg",
+        "description": "Close-up of eco-friendly packaging featuring recycled materials and sustainability labels."
+      },
+      {
+        "category": "Hero / Takeout",
+        "url": "https://images.pexels.com/photos/12725398/pexels-photo-12725398.jpeg",
+        "description": "Hands holding an eco-friendly cardboard food box outdoors."
+      },
+      {
+        "category": "E-Catalog / Food Containers",
+        "url": "https://images.unsplash.com/photo-1648587456176-4969b0124b12",
+        "description": "Box and a cup of coffee"
+      },
+      {
+        "category": "E-Catalog / Table Spread",
+        "url": "https://images.unsplash.com/photo-1652862729869-2f4e80c1849d",
+        "description": "Table topped with boxes of food and drinks"
+      },
+      {
+        "category": "Cleaning & Hospitality (EliteCare)",
+        "url": "https://images.pexels.com/photos/5217889/pexels-photo-5217889.jpeg",
+        "description": "Colorful plastic bottles with assorted cleaning products"
+      },
+      {
+        "category": "Cleaning Spray Bottle",
+        "url": "https://images.pexels.com/photos/4440564/pexels-photo-4440564.jpeg",
+        "description": "Close-up of a blue spray bottle"
+      },
+      {
+        "category": "About / Warehouse",
+        "url": "https://images.unsplash.com/photo-1553413077-190dd305871c",
+        "description": "Large clean warehouse"
+      },
+      {
+        "category": "Contact / Chennai City",
+        "url": "https://images.pexels.com/photos/9432498/pexels-photo-9432498.jpeg",
+        "description": "Aerial view of high-rise buildings in Chennai"
+      }
+    ]
+  },
+  "accessibility": {
+    "contrast": "Ensure Ink (#1A1C19) or Ink2 (#5C6159) is used for text against the light backgrounds (Pastel/Pistachio Green, Yellow, Surf). Do NOT use white text on Pastel Green unless verified with shadow.",
+    "motion": "Respect prefers-reduced-motion for Framer Motion animations. Add accessible labels to Font Awesome icons.",
+    "testing": "All interactive and key informational elements MUST include a data-testid attribute."
+  },
+  "universal_guidelines_for_main_agent": [
+    "You are building an Awwwards Site-of-the-Day level B2B platform. Avoid generic, template-like structures.",
+    "Implement Lenis for smooth scrolling and Framer Motion for line-by-line text reveals and scroll-triggered animations.",
+    "Strictly follow the color palette: Surface backgrounds lean towards Pastel Green (#93C572) and Pistachio Green (#BAED91), with White (#FFFFFF) cards. Accents are Sandy Yellow (#FFDA03) and Sunset Orange (#FD5E53).",
+    "Use 'Plus Jakarta Sans' font exclusively, with Font Awesome 6 for icons.",
+    "Cards and primary container elements must use the 'jumbo' 3rem border radius where appropriate to match the pill-and-card visual language.",
+    "DO NOT apply generic 'transition: all' globally. Animate transforms and opacities directly.",
+    "DO NOT center align large blocks of text; stick to left-aligned geometric precision unless in explicit hero/banner text.",
+    "NO pure transparent backgrounds under headers. Use glassmorphism or solid backgrounds.",
+    "Code files must be .js / .jsx (React + Tailwind) as per the repository structure. Do NOT use .tsx.",
+    "Always provide data-testid for buttons, links, inputs, and interactive elements for testing."
+  ]
+}
