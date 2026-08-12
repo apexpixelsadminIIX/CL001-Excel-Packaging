@@ -17,6 +17,24 @@ const TABS = [
 ];
 
 function ImgField({ label, value, onChange, testid }) {
+  const [busy, setBusy] = useState(false);
+  const onFile = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setBusy(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const { data } = await api.post("/admin/upload", fd, { headers: { "Content-Type": "multipart/form-data" } });
+      onChange(`${API}/files/${data.path}`);
+      toast.success("Image uploaded.");
+    } catch (err) {
+      toast.error("Upload failed. Try a smaller image (max 10MB).");
+    } finally {
+      setBusy(false);
+      e.target.value = "";
+    }
+  };
   return (
     <div>
       {label && <label className="text-[11px] font-bold text-ink2 uppercase tracking-wide mb-1 block">{label}</label>}
@@ -24,7 +42,11 @@ function ImgField({ label, value, onChange, testid }) {
         <div className="w-16 h-16 rounded-xl overflow-hidden bg-panel border border-line shrink-0">
           {value ? <img src={value} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-ink2/40"><i className="fa-solid fa-image" /></div>}
         </div>
-        <input data-testid={testid} className="flex-1 bg-panel border border-line rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-leaf" value={value || ""} onChange={(e) => onChange(e.target.value)} placeholder="Image URL" />
+        <input data-testid={testid} className="flex-1 bg-panel border border-line rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-leaf" value={value || ""} onChange={(e) => onChange(e.target.value)} placeholder="Paste image URL or upload →" />
+        <label className={`shrink-0 cursor-pointer bg-ink text-white px-4 py-3 rounded-xl text-sm font-bold hover:bg-leaf transition-colors ${busy ? "opacity-60 pointer-events-none" : ""}`} data-testid={testid ? `${testid}-upload` : "upload"}>
+          {busy ? <i className="fa-solid fa-spinner fa-spin" /> : <><i className="fa-solid fa-arrow-up-from-bracket mr-1" /> Upload</>}
+          <input type="file" accept="image/*" className="hidden" onChange={onFile} disabled={busy} />
+        </label>
       </div>
     </div>
   );
