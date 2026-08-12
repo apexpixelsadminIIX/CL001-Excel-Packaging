@@ -15,7 +15,10 @@ export function useContent() {
 }
 
 export function sortByPriority(products = []) {
-  return [...products].sort(
-    (a, b) => (CATEGORY_PRIORITY[a.category] || 99) - (CATEGORY_PRIORITY[b.category] || 99)
-  );
+  return [...products].sort((a, b) => {
+    const fa = a.featured ? 0 : 1;
+    const fb = b.featured ? 0 : 1;
+    if (fa !== fb) return fa - fb;
+    return (CATEGORY_PRIORITY[a.category] || 99) - (CATEGORY_PRIORITY[b.category] || 99);
+  });
 }

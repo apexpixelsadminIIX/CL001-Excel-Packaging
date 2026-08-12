@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { Reorder, useDragControls } from "framer-motion";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/context/AuthContext";
 import { api, API, resolveImg } from "@/lib/api";
@@ -70,6 +71,130 @@ function Txt({ label, value, onChange, area, testid }) {
   );
 }
 
+function SortableItem({ value, label, onRemove, removeTestid, children }) {
+  const controls = useDragControls();
+  return (
+    <Reorder.Item
+      value={value}
+      dragListener={false}
+      dragControls={controls}
+      className="bg-surf border border-line rounded-2xl p-5 space-y-3 list-none"
+    >
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <button
+            onPointerDown={(e) => controls.start(e)}
+            aria-label="Drag to reorder"
+            data-testid={removeTestid ? `${removeTestid}-drag` : "drag-handle"}
+            className="cursor-grab active:cursor-grabbing text-ink2 hover:text-ink w-8 h-8 flex items-center justify-center touch-none"
+          >
+            <i className="fa-solid fa-grip-vertical" />
+          </button>
+          <span className="text-xs font-bold text-leaf uppercase tracking-widest">{label}</span>
+        </div>
+        <button
+          data-testid={removeTestid}
+          onClick={onRemove}
+          aria-label="Remove"
+          className="w-9 h-9 rounded-full text-sunset hover:bg-sunset hover:text-white flex items-center justify-center transition-colors"
+        >
+          <i className="fa-solid fa-trash-can" />
+        </button>
+      </div>
+      {children}
+    </Reorder.Item>
+  );
+}
+
+function BulkUpload({ products, onAssign }) {
+  const [items, setItems] = useState([]);
+  const [busy, setBusy] = useState(false);
+  const [open, setOpen] = useState(false);
+
+  const onFiles = async (e) => {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+    setBusy(true);
+    const uploaded = [];
+    for (const f of files) {
+      const fd = new FormData();
+      fd.append("file", f);
+      try {
+        const { data } = await api.post("/admin/upload", fd, { headers: { "Content-Type": "multipart/form-data" } });
+        uploaded.push({ url: data.url, name: f.name, target: "" });
+      } catch {
+        toast.error(`Failed: ${f.name}`);
+      }
+    }
+    setItems((prev) => [...prev, ...uploaded]);
+    setBusy(false);
+    e.target.value = "";
+  };
+
+  const setTarget = (idx, pid) => setItems((prev) => prev.map((it, i) => (i === idx ? { ...it, target: pid } : it)));
+
+  const autoFillEmpties = () => {
+    const empties = products.filter((p) => !p.image).map((p) => p.id);
+    setItems((prev) => {
+      let k = 0;
+      return prev.map((it) => (it.target ? it : (k < empties.length ? { ...it, target: empties[k++] } : it)));
+    });
+    toast.message("Assigned uploads to products missing images. Review and Apply.");
+  };
+
+  const apply = () => {
+    const assigns = items.filter((it) => it.target);
+    if (!assigns.length) return toast.error("Pick a product for at least one image.");
+    onAssign(assigns);
+    setItems([]);
+    setOpen(false);
+    toast.success(`Matched ${assigns.length} image(s). Remember to Save & Publish.`);
+  };
+
+  return (
+    <div className="bg-panel border border-line rounded-2xl p-5">
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="font-bold text-ink flex items-center gap-2"><i className="fa-solid fa-layer-group text-leaf" /> Bulk Image Upload</h3>
+          <p className="text-xs text-ink2 mt-1">Drop several photos at once, then match each to a product.</p>
+        </div>
+        <button data-testid="bulk-toggle" onClick={() => setOpen((o) => !o)} className="text-sm font-bold text-leaf">{open ? "Hide" : "Open"}</button>
+      </div>
+
+      {open && (
+        <div className="mt-4 space-y-4" data-testid="bulk-panel">
+          <label className={`block border-2 border-dashed border-line rounded-2xl p-6 text-center cursor-pointer hover:border-leaf transition-colors ${busy ? "opacity-60 pointer-events-none" : ""}`}>
+            <i className="fa-solid fa-cloud-arrow-up text-2xl text-leaf mb-2" />
+            <p className="text-sm font-bold text-ink">{busy ? "Uploading…" : "Click to select multiple images"}</p>
+            <input type="file" accept="image/*" multiple className="hidden" onChange={onFiles} data-testid="bulk-input" />
+          </label>
+
+          {items.length > 0 && (
+            <>
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-bold text-ink">{items.length} uploaded</span>
+                <button onClick={autoFillEmpties} className="text-xs font-bold text-sunset" data-testid="bulk-autofill">Auto-match to products missing images</button>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {items.map((it, i) => (
+                  <div key={i} className="flex items-center gap-3 bg-surf border border-line rounded-xl p-3">
+                    <img src={resolveImg(it.url)} alt="" className="w-14 h-14 rounded-lg object-cover shrink-0" />
+                    <select data-testid={`bulk-target-${i}`} className="flex-1 bg-panel border border-line rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-leaf" value={it.target} onChange={(e) => setTarget(i, e.target.value)}>
+                      <option value="">— assign to product —</option>
+                      {products.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+                    </select>
+                  </div>
+                ))}
+              </div>
+              <button data-testid="bulk-apply" onClick={apply} className="bg-leaf text-white px-6 py-3 rounded-full text-sm font-bold hover:bg-ink transition-colors">Match Images</button>
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function AdminDashboard() {
   const { admin, ready, logout } = useAuth();
   const nav = useNavigate();
@@ -107,6 +232,11 @@ export default function AdminDashboard() {
       const arr = [...c[key]];
       arr[idx] = { ...arr[idx], category: catId, category_label: labels[catId] };
       return { ...c, [key]: arr };
+    });
+  const bulkAssign = (assigns) =>
+    setContent((c) => {
+      const map = Object.fromEntries(assigns.map((a) => [a.target, a.url]));
+      return { ...c, products: c.products.map((p) => (map[p.id] ? { ...p, image: map[p.id] } : p)) };
     });
 
   const save = async () => {
@@ -261,34 +391,40 @@ export default function AdminDashboard() {
                 <h2 className="text-2xl font-extrabold text-ink">Products ({content.products?.length})</h2>
                 <button
                   data-testid="add-product"
-                  onClick={() => addItem("products", { name: "New Product", category: "eco", category_label: CAT_LABELS.eco, badge: "In Stock", desc: "", image: "" })}
+                  onClick={() => addItem("products", { name: "New Product", category: "eco", category_label: CAT_LABELS.eco, badge: "In Stock", featured: false, desc: "", image: "" })}
                   className="bg-leaf text-white px-5 py-2.5 rounded-full text-sm font-bold hover:bg-ink transition-colors"
                 >
                   <i className="fa-solid fa-plus mr-2" />Add Product
                 </button>
               </div>
-              {content.products?.map((p, i) => (
-                <Card key={p.id}>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-leaf uppercase tracking-widest">{p.category_label}</span>
-                    <button data-testid={`remove-product-${i}`} onClick={() => removeItem("products", i)} aria-label="Remove product" className="w-9 h-9 rounded-full text-sunset hover:bg-sunset hover:text-white flex items-center justify-center transition-colors">
-                      <i className="fa-solid fa-trash-can" />
-                    </button>
-                  </div>
-                  <ImgField label={p.name} value={p.image} onChange={(v) => updateItem("products", i, "image", v)} testid={`prod-img-${i}`} />
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                    <Txt label="Name" value={p.name} onChange={(v) => updateItem("products", i, "name", v)} />
-                    <Txt label="Badge" value={p.badge} onChange={(v) => updateItem("products", i, "badge", v)} />
-                    <div>
-                      <label className="text-[11px] font-bold text-ink2 uppercase tracking-wide mb-1 block">Category</label>
-                      <select data-testid={`prod-cat-${i}`} className={selCls} value={p.category} onChange={(e) => setCategory("products", i, e.target.value, CAT_LABELS)}>
-                        {Object.entries(CAT_LABELS).map(([id, label]) => <option key={id} value={id}>{label}</option>)}
-                      </select>
+              <BulkUpload products={content.products || []} onAssign={bulkAssign} />
+              <p className="text-xs text-ink2 flex items-center gap-2"><i className="fa-solid fa-grip-vertical" /> Drag the handle to reorder. Featured products appear first on the Home page and Catalog.</p>
+              <Reorder.Group axis="y" values={content.products} onReorder={(vals) => update("products", vals)} className="space-y-4">
+                {content.products?.map((p, i) => (
+                  <SortableItem key={p.id} value={p} label={p.category_label} onRemove={() => removeItem("products", i)} removeTestid={`remove-product-${i}`}>
+                    <ImgField label={p.name} value={p.image} onChange={(v) => updateItem("products", i, "image", v)} testid={`prod-img-${i}`} />
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                      <Txt label="Name" value={p.name} onChange={(v) => updateItem("products", i, "name", v)} />
+                      <Txt label="Badge" value={p.badge} onChange={(v) => updateItem("products", i, "badge", v)} />
+                      <div>
+                        <label className="text-[11px] font-bold text-ink2 uppercase tracking-wide mb-1 block">Category</label>
+                        <select data-testid={`prod-cat-${i}`} className={selCls} value={p.category} onChange={(e) => setCategory("products", i, e.target.value, CAT_LABELS)}>
+                          {Object.entries(CAT_LABELS).map(([id, label]) => <option key={id} value={id}>{label}</option>)}
+                        </select>
+                      </div>
+                      <div className="md:col-span-3"><Txt label="Description" area value={p.desc} onChange={(v) => updateItem("products", i, "desc", v)} /></div>
                     </div>
-                    <div className="md:col-span-3"><Txt label="Description" area value={p.desc} onChange={(v) => updateItem("products", i, "desc", v)} /></div>
-                  </div>
-                </Card>
-              ))}
+                    <button
+                      type="button"
+                      data-testid={`featured-toggle-${i}`}
+                      onClick={() => updateItem("products", i, "featured", !p.featured)}
+                      className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold transition-colors ${p.featured ? "bg-sun text-ink" : "bg-panel text-ink2 hover:text-ink"}`}
+                    >
+                      <i className={`fa-${p.featured ? "solid" : "regular"} fa-star`} /> {p.featured ? "Featured" : "Mark as Featured"}
+                    </button>
+                  </SortableItem>
+                ))}
+              </Reorder.Group>
             </section>
           )}
 
@@ -304,28 +440,25 @@ export default function AdminDashboard() {
                   <i className="fa-solid fa-plus mr-2" />Add Product
                 </button>
               </div>
-              {content.cleaning_products?.map((p, i) => (
-                <Card key={p.id}>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-leaf uppercase tracking-widest">{p.category_label}</span>
-                    <button data-testid={`remove-cleaning-${i}`} onClick={() => removeItem("cleaning_products", i)} aria-label="Remove product" className="w-9 h-9 rounded-full text-sunset hover:bg-sunset hover:text-white flex items-center justify-center transition-colors">
-                      <i className="fa-solid fa-trash-can" />
-                    </button>
-                  </div>
-                  <ImgField label={p.name} value={p.image} onChange={(v) => updateItem("cleaning_products", i, "image", v)} testid={`clean-img-${i}`} />
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                    <Txt label="Name" value={p.name} onChange={(v) => updateItem("cleaning_products", i, "name", v)} />
-                    <Txt label="Tag" value={p.tag} onChange={(v) => updateItem("cleaning_products", i, "tag", v)} />
-                    <div>
-                      <label className="text-[11px] font-bold text-ink2 uppercase tracking-wide mb-1 block">Category</label>
-                      <select data-testid={`clean-cat-${i}`} className={selCls} value={p.category} onChange={(e) => setCategory("cleaning_products", i, e.target.value, CLEAN_LABELS)}>
-                        {Object.entries(CLEAN_LABELS).map(([id, label]) => <option key={id} value={id}>{label}</option>)}
-                      </select>
+              <p className="text-xs text-ink2 flex items-center gap-2"><i className="fa-solid fa-grip-vertical" /> Drag the handle to reorder how products appear on the EliteCare page.</p>
+              <Reorder.Group axis="y" values={content.cleaning_products} onReorder={(vals) => update("cleaning_products", vals)} className="space-y-4">
+                {content.cleaning_products?.map((p, i) => (
+                  <SortableItem key={p.id} value={p} label={p.category_label} onRemove={() => removeItem("cleaning_products", i)} removeTestid={`remove-cleaning-${i}`}>
+                    <ImgField label={p.name} value={p.image} onChange={(v) => updateItem("cleaning_products", i, "image", v)} testid={`clean-img-${i}`} />
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                      <Txt label="Name" value={p.name} onChange={(v) => updateItem("cleaning_products", i, "name", v)} />
+                      <Txt label="Tag" value={p.tag} onChange={(v) => updateItem("cleaning_products", i, "tag", v)} />
+                      <div>
+                        <label className="text-[11px] font-bold text-ink2 uppercase tracking-wide mb-1 block">Category</label>
+                        <select data-testid={`clean-cat-${i}`} className={selCls} value={p.category} onChange={(e) => setCategory("cleaning_products", i, e.target.value, CLEAN_LABELS)}>
+                          {Object.entries(CLEAN_LABELS).map(([id, label]) => <option key={id} value={id}>{label}</option>)}
+                        </select>
+                      </div>
+                      <div className="md:col-span-3"><Txt label="Description" area value={p.desc} onChange={(v) => updateItem("cleaning_products", i, "desc", v)} /></div>
                     </div>
-                    <div className="md:col-span-3"><Txt label="Description" area value={p.desc} onChange={(v) => updateItem("cleaning_products", i, "desc", v)} /></div>
-                  </div>
-                </Card>
-              ))}
+                  </SortableItem>
+                ))}
+              </Reorder.Group>
             </section>
           )}
 
@@ -335,35 +468,32 @@ export default function AdminDashboard() {
                 <h2 className="text-2xl font-extrabold text-ink">Social Posts & Videos ({content.social_posts?.length})</h2>
                 <button
                   data-testid="add-social"
-                  onClick={() => addItem("social_posts", { platform: "instagram", image: "", caption: "New post", link: "https://instagram.com" })}
+                  onClick={() => addItem("social_posts", { platform: "instagram", image: "", video_url: "", caption: "New post", link: "https://instagram.com" })}
                   className="bg-leaf text-white px-5 py-2.5 rounded-full text-sm font-bold hover:bg-ink transition-colors"
                 >
                   <i className="fa-solid fa-plus mr-2" />Add Post
                 </button>
               </div>
-              <p className="text-sm text-ink2 mb-2">These appear in the Home page social carousel (one slide at a time). Set the image/thumbnail, caption, platform and outbound link.</p>
-              {content.social_posts?.map((s, i) => (
-                <Card key={s.id}>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-leaf uppercase tracking-widest">Post {i + 1}</span>
-                    <button data-testid={`remove-social-${i}`} onClick={() => removeItem("social_posts", i)} aria-label="Remove post" className="w-9 h-9 rounded-full text-sunset hover:bg-sunset hover:text-white flex items-center justify-center transition-colors">
-                      <i className="fa-solid fa-trash-can" />
-                    </button>
-                  </div>
-                  <ImgField label={`Image / thumbnail (${s.platform})`} value={s.image} onChange={(v) => updateItem("social_posts", i, "image", v)} testid={`social-img-${i}`} />
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                    <div>
-                      <label className="text-[11px] font-bold text-ink2 uppercase tracking-wide mb-1 block">Platform</label>
-                      <select data-testid={`social-platform-${i}`} className={selCls} value={s.platform} onChange={(e) => updateItem("social_posts", i, "platform", e.target.value)}>
-                        <option value="instagram">Instagram</option>
-                        <option value="youtube">YouTube</option>
-                      </select>
+              <p className="text-sm text-ink2">These appear in the Home page social carousel (one slide at a time). Add a YouTube or Instagram <b>video/reel link</b> to auto-play it inline; otherwise the image is shown. Drag to reorder.</p>
+              <Reorder.Group axis="y" values={content.social_posts} onReorder={(vals) => update("social_posts", vals)} className="space-y-4">
+                {content.social_posts?.map((s, i) => (
+                  <SortableItem key={s.id} value={s} label={`Post ${i + 1} · ${s.platform}`} onRemove={() => removeItem("social_posts", i)} removeTestid={`remove-social-${i}`}>
+                    <ImgField label="Fallback image / thumbnail" value={s.image} onChange={(v) => updateItem("social_posts", i, "image", v)} testid={`social-img-${i}`} />
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                      <div>
+                        <label className="text-[11px] font-bold text-ink2 uppercase tracking-wide mb-1 block">Platform</label>
+                        <select data-testid={`social-platform-${i}`} className={selCls} value={s.platform} onChange={(e) => updateItem("social_posts", i, "platform", e.target.value)}>
+                          <option value="instagram">Instagram</option>
+                          <option value="youtube">YouTube</option>
+                        </select>
+                      </div>
+                      <Txt label="Profile / outbound link" value={s.link} onChange={(v) => updateItem("social_posts", i, "link", v)} />
+                      <Txt label="Video / Reel link (auto-play embed)" value={s.video_url} onChange={(v) => updateItem("social_posts", i, "video_url", v)} testid={`social-video-${i}`} />
+                      <div className="md:col-span-3"><Txt label="Caption" value={s.caption} onChange={(v) => updateItem("social_posts", i, "caption", v)} /></div>
                     </div>
-                    <Txt label="Link" value={s.link} onChange={(v) => updateItem("social_posts", i, "link", v)} />
-                    <div className="md:col-span-3"><Txt label="Caption" value={s.caption} onChange={(v) => updateItem("social_posts", i, "caption", v)} /></div>
-                  </div>
-                </Card>
-              ))}
+                  </SortableItem>
+                ))}
+              </Reorder.Group>
             </section>
           )}
 

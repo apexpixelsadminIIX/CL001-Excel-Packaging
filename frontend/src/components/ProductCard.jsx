@@ -23,6 +23,11 @@ export default function ProductCard({ product, index = 0, accent = "leaf" }) {
         <span className={`absolute top-4 left-4 ${badgeColor} text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full`}>
           {product.category_label}
         </span>
+        {product.featured && (
+          <span className="absolute top-4 right-4 bg-sun text-ink text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full flex items-center gap-1" data-testid={`featured-badge-${product.id}`}>
+            <i className="fa-solid fa-star" /> Featured
+          </span>
+        )}
       </div>
       <div className="p-6">
         <div className="flex items-start justify-between gap-3 mb-2">

@@ -2,6 +2,25 @@ import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { resolveImg } from "@/lib/api";
 
+function parseEmbed(url) {
+  if (!url) return null;
+  // YouTube
+  const yt = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{6,})/);
+  if (yt) {
+    return {
+      type: "youtube",
+      src: `https://www.youtube.com/embed/${yt[1]}?autoplay=1&mute=1&rel=0&playsinline=1&loop=1&playlist=${yt[1]}`,
+    };
+  }
+  // Instagram post / reel / tv
+  const ig = url.match(/instagram\.com\/(?:p|reel|tv)\/([\w-]+)/);
+  if (ig) {
+    const kind = url.includes("/reel/") ? "reel" : url.includes("/tv/") ? "tv" : "p";
+    return { type: "instagram", src: `https://www.instagram.com/${kind}/${ig[1]}/embed` };
+  }
+  return null;
+}
+
 export default function SocialCarousel({ posts = [] }) {
   const [index, setIndex] = useState(0);
   const [dir, setDir] = useState(1);
@@ -17,12 +36,15 @@ export default function SocialCarousel({ posts = [] }) {
 
   useEffect(() => {
     if (count <= 1) return;
+    // Don't auto-advance while a video slide is playing.
+    if (parseEmbed(posts[index]?.video_url)) return;
     const t = setInterval(() => paginate(1), 5500);
     return () => clearInterval(t);
-  }, [paginate, count]);
+  }, [paginate, count, index, posts]);
 
   if (!count) return null;
   const post = posts[index];
+  const embed = parseEmbed(post.video_url);
 
   const variants = {
     enter: (d) => ({ x: d > 0 ? 80 : -80, opacity: 0, scale: 0.96 }),
@@ -61,18 +83,32 @@ export default function SocialCarousel({ posts = [] }) {
               className="group block bg-surf border border-line rounded-jumbo overflow-hidden shadow-card"
             >
               <div className="grid grid-cols-1 md:grid-cols-2">
-                <div className="relative aspect-square md:aspect-auto overflow-hidden bg-panel">
-                  <img src={resolveImg(post.image)} alt={post.caption} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                  <span className="absolute top-4 left-4 flex items-center gap-2 bg-white/90 text-ink text-xs font-bold px-3 py-1.5 rounded-full">
+                <div className="relative aspect-square md:aspect-auto md:min-h-[380px] overflow-hidden bg-ink">
+                  {embed ? (
+                    <iframe
+                      title={post.caption}
+                      src={embed.src}
+                      className="absolute inset-0 w-full h-full"
+                      style={{ border: 0 }}
+                      allow="autoplay; encrypted-media; clipboard-write; picture-in-picture"
+                      allowFullScreen
+                      scrolling="no"
+                      data-testid={`social-embed-${post.id}`}
+                    />
+                  ) : (
+                    <img src={resolveImg(post.image)} alt={post.caption} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                  )}
+                  <span className="absolute top-4 left-4 z-10 flex items-center gap-2 bg-white/90 text-ink text-xs font-bold px-3 py-1.5 rounded-full pointer-events-none">
                     <i className={`fa-brands ${post.platform === "youtube" ? "fa-youtube text-sunset" : "fa-instagram text-leaf"}`} />
                     {post.platform === "youtube" ? "YouTube" : "Instagram"}
+                    {embed && <i className="fa-solid fa-circle-play text-sunset ml-1" />}
                   </span>
                 </div>
                 <div className="p-8 md:p-10 flex flex-col justify-center">
-                  <p className="text-sunset text-xs font-bold uppercase tracking-[0.2em] mb-4">Latest Post</p>
+                  <p className="text-sunset text-xs font-bold uppercase tracking-[0.2em] mb-4">{embed ? "Now Playing" : "Latest Post"}</p>
                   <p className="text-ink text-xl md:text-2xl font-bold leading-snug mb-6">{post.caption}</p>
                   <span className="inline-flex items-center gap-2 text-ink font-bold text-sm">
-                    {post.platform === "youtube" ? "Watch now" : "View on Instagram"}
+                    {post.platform === "youtube" ? "Watch on YouTube" : "View on Instagram"}
                     <i className="fa-solid fa-arrow-up-right-from-square text-xs group-hover:translate-x-1 transition-transform" />
                   </span>
                 </div>

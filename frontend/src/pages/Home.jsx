@@ -6,8 +6,9 @@ import HeroCarousel from "@/components/HeroCarousel";
 import Marquee from "@/components/Marquee";
 import SocialCarousel from "@/components/SocialCarousel";
 import { Reveal } from "@/components/Reveal";
-import { useContent } from "@/hooks/useContent";
+import { useContent, sortByPriority } from "@/hooks/useContent";
 import { resolveImg } from "@/lib/api";
+import ProductCard from "@/components/ProductCard";
 
 const WHY = [
   { icon: "fa-award", title: "Quality Standards", body: "100% food-grade materials ensuring maximum safety for consumers." },
@@ -23,6 +24,7 @@ export default function Home() {
   const categories = data?.categories || [];
   const testimonials = data?.testimonials || [];
   const social = data?.social_posts || [];
+  const featured = sortByPriority((data?.products || []).filter((p) => p.featured)).slice(0, 4);
 
   return (
     <div className="bg-bg">
@@ -121,6 +123,35 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Featured Products */}
+      {featured.length > 0 && (
+        <section className="py-24 md:py-32 px-6 md:px-12" data-testid="featured-section">
+          <div className="max-w-7xl mx-auto">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-14 gap-6">
+              <Reveal>
+                <p className="text-sunset font-bold tracking-[0.2em] uppercase mb-4 text-sm flex items-center gap-2">
+                  <i className="fa-solid fa-star" /> Featured Picks
+                </p>
+                <h2 className="text-4xl md:text-6xl font-extrabold text-ink tracking-tight">This Season's Best</h2>
+              </Reveal>
+              <Reveal delay={0.1}>
+                <Link to="/catalog" data-testid="featured-view-all" className="inline-flex items-center gap-3 text-ink font-bold group">
+                  View All Products
+                  <span className="w-11 h-11 rounded-full border border-line flex items-center justify-center group-hover:bg-sunset group-hover:text-white group-hover:border-sunset transition-colors">
+                    <i className="fa-solid fa-arrow-right" />
+                  </span>
+                </Link>
+              </Reveal>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+              {featured.map((p, i) => (
+                <ProductCard key={p.id} product={p} index={i} accent="sunset" />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Why Partner */}
       <section className="py-24 md:py-32 px-6 md:px-12" data-testid="why-section">

@@ -70,16 +70,16 @@ DEFAULT_CONTENT = {
     ],
     "products": [
         # ECO (priority 1)
-        {"id": "p-sugarcane", "name": "Sugarcane Bagasse Plates", "category": "eco", "category_label": "Eco-Friendly", "badge": "In Stock", "desc": "100% biodegradable and sturdy, moisture resistant. Available in 7, 9 and 12 inch sizes.", "image": IMG["sugarcane_plates"]},
+        {"id": "p-sugarcane", "name": "Sugarcane Bagasse Plates", "category": "eco", "category_label": "Eco-Friendly", "badge": "In Stock", "featured": True, "desc": "100% biodegradable and sturdy, moisture resistant. Available in 7, 9 and 12 inch sizes.", "image": IMG["sugarcane_plates"]},
         {"id": "p-bagasse-box", "name": "Bagasse Clamshell Boxes", "category": "eco", "category_label": "Eco-Friendly", "badge": "Best Seller", "desc": "Compostable hinged meal boxes, leak-resistant and microwave safe for hot takeaway food.", "image": IMG["eco_box_green"]},
         {"id": "p-bagasse-bowls", "name": "Bagasse Bowls & Trays", "category": "eco", "category_label": "Eco-Friendly", "badge": "In Stock", "desc": "Deep compostable bowls and compartment trays for curries, rice and multi-course meals.", "image": IMG["cat_eco"]},
         {"id": "p-wooden-cutlery", "name": "Wooden Cutlery Sets", "category": "eco", "category_label": "Eco-Friendly", "badge": "Popular", "desc": "Smooth birch wood forks, spoons and knives. Splinter-free and fully compostable.", "image": IMG["wooden_cutlery"]},
         # PLASTIC (priority 2)
-        {"id": "p-pp", "name": "PP Microwavable Containers", "category": "plastic", "category_label": "Plastic", "badge": "Bulk Supply", "desc": "High-quality PP containers, leak-proof and heat resistant up to 120°C with snap lids.", "image": IMG["pp_container"]},
+        {"id": "p-pp", "name": "PP Microwavable Containers", "category": "plastic", "category_label": "Plastic", "badge": "Bulk Supply", "featured": True, "desc": "High-quality PP containers, leak-proof and heat resistant up to 120°C with snap lids.", "image": IMG["pp_container"]},
         {"id": "p-pet", "name": "PET Hinged Deli Boxes", "category": "plastic", "category_label": "Plastic", "badge": "In Stock", "desc": "Crystal-clear PET salad and deli boxes with tamper-evident hinged lids.", "image": IMG["pet_box"]},
         {"id": "p-portion", "name": "Clear Portion Cups", "category": "plastic", "category_label": "Plastic", "badge": "Bulk Supply", "desc": "Stackable portion cups with lids for sauces, chutneys and dressings.", "image": IMG["cat_containers"]},
         # PAPER (priority 3)
-        {"id": "p-kraft-box", "name": "Kraft Meal Boxes", "category": "paper", "category_label": "Paper", "badge": "In Stock", "desc": "Premium kraft paper boxes with grease-proof lining for fried snacks and meals.", "image": IMG["kraft_open"]},
+        {"id": "p-kraft-box", "name": "Kraft Meal Boxes", "category": "paper", "category_label": "Paper", "badge": "In Stock", "featured": True, "desc": "Premium kraft paper boxes with grease-proof lining for fried snacks and meals.", "image": IMG["kraft_open"]},
         {"id": "p-paper-cup", "name": "Ripple Paper Cups", "category": "paper", "category_label": "Paper", "badge": "Popular", "desc": "Double-wall ripple cups for hot beverages, 8oz to 16oz with matching lids.", "image": IMG["paper_cup"]},
         {"id": "p-kraft-bags", "name": "Kraft Carry Bags", "category": "paper", "category_label": "Paper", "badge": "In Stock", "desc": "Twisted-handle kraft bags for takeaway and retail, multiple sizes available.", "image": IMG["kraft_bags"]},
         {"id": "p-cups-lids", "name": "Takeaway Cups with Lids", "category": "paper", "category_label": "Paper", "badge": "Bulk Supply", "desc": "Coated paper cups with sip-through lids, ideal for cafes and cloud kitchens.", "image": IMG["cups_top"]},
@@ -120,7 +120,7 @@ DEFAULT_CONTENT = {
     "social_posts": [
         {"id": "sp1", "platform": "instagram", "image": IMG["eco_box_delivery"], "caption": "Fresh batch of compostable meal boxes shipped across Chennai 🌿", "link": "https://instagram.com"},
         {"id": "sp2", "platform": "instagram", "image": IMG["box_coffee"], "caption": "Cafe-ready cups & boxes for our cloud kitchen partners ☕", "link": "https://instagram.com"},
-        {"id": "sp3", "platform": "youtube", "image": IMG["hero_offer"], "caption": "Watch: How we quality-check every food-grade batch", "link": "https://youtube.com"},
+        {"id": "sp3", "platform": "youtube", "image": IMG["hero_offer"], "video_url": "https://www.youtube.com/watch?v=jNQXAC9IVRw", "caption": "Watch: How we quality-check every food-grade batch", "link": "https://youtube.com"},
         {"id": "sp4", "platform": "instagram", "image": IMG["sugarcane_plates"], "caption": "Sugarcane bagasse plates — sturdy, sleak-proof, 100% compostable", "link": "https://instagram.com"},
         {"id": "sp5", "platform": "instagram", "image": IMG["eco_box_kitchen"], "caption": "Behind the scenes at our Guindy fulfilment hub 📦", "link": "https://instagram.com"},
         {"id": "sp6", "platform": "youtube", "image": IMG["warehouse2"], "caption": "Bulk logistics: same-day dispatch for Chennai orders", "link": "https://youtube.com"},
