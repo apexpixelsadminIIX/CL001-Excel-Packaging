@@ -5,10 +5,10 @@ export default function Marquee({ items = [], className = "" }) {
       <div className="flex w-max animate-marquee whitespace-nowrap">
         {loop.map((item, i) => (
           <div key={i} className="flex items-center">
-            <span className="px-8 py-6 text-4xl md:text-6xl font-bold tracking-tight text-ink/90">
+            <span className="px-5 py-1.5 text-base md:text-xl font-bold tracking-tight text-ink/90">
               {item}
             </span>
-            <span className="text-sunset text-3xl">
+            <span className="text-sunset text-base md:text-lg">
               <i className="fa-solid fa-leaf" aria-hidden="true" />
             </span>
           </div>

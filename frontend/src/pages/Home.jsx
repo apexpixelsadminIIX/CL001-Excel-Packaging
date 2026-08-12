@@ -28,7 +28,7 @@ export default function Home() {
       <HeroCarousel slides={slides} />
 
       {/* Marquee */}
-      <section className="py-6 bg-pistachio/40 border-y border-line">
+      <section className="py-2 bg-pistachio/40 border-y border-line">
         <Marquee items={["Food Containers", "Eco Disposables", "Foil Products", "Hygiene Chemicals", "Bulk Supply", "Since 2019"]} />
       </section>
 
