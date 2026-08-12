@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { resolveImg } from "@/lib/api";
 
 export default function ProductCard({ product, index = 0, accent = "leaf" }) {
   const badgeColor = accent === "sunset" ? "bg-sunset" : "bg-leaf";
@@ -14,7 +15,7 @@ export default function ProductCard({ product, index = 0, accent = "leaf" }) {
     >
       <div className="aspect-square overflow-hidden relative bg-panel">
         <img
-          src={product.image}
+          src={resolveImg(product.image)}
           alt={product.name}
           loading="lazy"
           className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"

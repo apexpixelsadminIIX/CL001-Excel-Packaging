@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Reveal } from "@/components/Reveal";
 import { useContent } from "@/hooks/useContent";
+import { resolveImg } from "@/lib/api";
 
 // Self-contained "Cleaning & Hospitality Chemicals" (EliteCare) page.
 // Kept modular so it can later be spun off into a standalone site/subdomain.
@@ -56,7 +57,7 @@ export default function Cleaning() {
           </div>
           <Reveal delay={0.2}>
             <div className="bg-surf p-4 rounded-jumbo shadow-card">
-              <img src={data?.categories?.find((c) => c.id === "clean")?.image} alt="Professional cleaning chemicals" className="rounded-[2.4rem] w-full aspect-[4/3] object-cover" />
+              <img src={resolveImg(data?.categories?.find((c) => c.id === "clean")?.image)} alt="Professional cleaning chemicals" className="rounded-[2.4rem] w-full aspect-[4/3] object-cover" />
             </div>
           </Reveal>
         </div>
@@ -113,7 +114,7 @@ export default function Cleaning() {
               data-testid={`cleaning-card-${p.id}`}
             >
               <div className="aspect-video rounded-[1.4rem] overflow-hidden mb-7 relative bg-panel">
-                <img src={p.image} alt={p.name} loading="lazy" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                <img src={resolveImg(p.image)} alt={p.name} loading="lazy" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                 <span className="absolute top-4 left-4 bg-leaf text-white text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-widest">{p.category_label}</span>
               </div>
               <h3 className="text-2xl font-bold text-ink mb-3">{p.name}</h3>

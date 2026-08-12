@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { resolveImg } from "@/lib/api";
 
 export default function HeroCarousel({ slides = [] }) {
   const [index, setIndex] = useState(0);
@@ -30,7 +31,7 @@ export default function HeroCarousel({ slides = [] }) {
           transition={{ duration: 1 }}
         >
           <motion.img
-            src={slide.image}
+            src={resolveImg(slide.image)}
             alt={slide.title_lead + " " + slide.title_accent}
             className="w-full h-full object-cover"
             initial={{ scale: 1.12 }}

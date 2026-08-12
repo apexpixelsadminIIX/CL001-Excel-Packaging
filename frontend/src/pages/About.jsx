@@ -3,6 +3,7 @@ import Footer from "@/components/Footer";
 import { Reveal } from "@/components/Reveal";
 import { motion } from "framer-motion";
 import { useContent } from "@/hooks/useContent";
+import { resolveImg } from "@/lib/api";
 
 export default function About() {
   const { data } = useContent();
@@ -56,7 +57,7 @@ export default function About() {
         <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-16 lg:gap-20">
           <Reveal className="w-full lg:w-1/2">
             <div className="bg-surf p-4 rounded-jumbo shadow-card">
-              <img src={a.image} alt="Excel Packaging Chennai warehouse" className="rounded-[2.4rem] w-full aspect-square object-cover" />
+              <img src={resolveImg(a.image)} alt="Excel Packaging Chennai warehouse" className="rounded-[2.4rem] w-full aspect-square object-cover" />
             </div>
           </Reveal>
           <div className="w-full lg:w-1/2">

@@ -6,6 +6,7 @@ import HeroCarousel from "@/components/HeroCarousel";
 import Marquee from "@/components/Marquee";
 import { Reveal } from "@/components/Reveal";
 import { useContent } from "@/hooks/useContent";
+import { resolveImg } from "@/lib/api";
 
 const WHY = [
   { icon: "fa-award", title: "Quality Standards", body: "100% food-grade materials ensuring maximum safety for consumers." },
@@ -38,7 +39,7 @@ export default function Home() {
           <Reveal className="relative">
             <div className="absolute -top-10 -left-10 w-56 h-56 bg-pistachio/50 rounded-full blur-3xl z-0" />
             <div className="relative z-10 bg-surf p-4 rounded-jumbo shadow-card">
-              <img src={story.image} alt="Excel Packaging warehouse" className="rounded-[2.4rem] w-full aspect-[4/5] object-cover" />
+              <img src={resolveImg(story.image)} alt="Excel Packaging warehouse" className="rounded-[2.4rem] w-full aspect-[4/5] object-cover" />
             </div>
             <div className="absolute -bottom-6 -right-4 md:-right-8 bg-leaf p-8 md:p-10 rounded-[2rem] shadow-cardhover z-20 text-white">
               <p className="text-4xl md:text-5xl font-extrabold">{story.established || "2019"}</p>
@@ -106,7 +107,7 @@ export default function Home() {
                   className={`block rounded-[2.2rem] p-6 h-full transition-transform duration-500 hover:-translate-y-2 ${cat.highlight ? "bg-ink" : "bg-surf shadow-card hover:shadow-cardhover"}`}
                 >
                   <div className="aspect-square rounded-[1.6rem] overflow-hidden mb-6 bg-panel">
-                    <img src={cat.image} alt={cat.title} className="w-full h-full object-cover" />
+                    <img src={resolveImg(cat.image)} alt={cat.title} className="w-full h-full object-cover" />
                   </div>
                   <h3 className={`text-2xl font-bold mb-2 ${cat.highlight ? "text-white" : "text-ink"}`}>{cat.title}</h3>
                   <p className={`text-sm leading-relaxed mb-5 ${cat.highlight ? "text-white/60" : "text-ink2"}`}>{cat.desc}</p>
@@ -173,7 +174,7 @@ export default function Home() {
                 transition={{ duration: 0.5, delay: (i % 6) * 0.05 }}
                 className={`group relative rounded-[1.4rem] overflow-hidden aspect-square ${i % 5 === 0 ? "col-span-2 row-span-2 aspect-auto" : ""}`}
               >
-                <img src={post.image} alt={post.caption} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                <img src={resolveImg(post.image)} alt={post.caption} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                 <div className="absolute inset-0 bg-gradient-to-t from-ink/85 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                 <div className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/90 flex items-center justify-center text-ink">
                   <i className={`fa-brands ${post.platform === "youtube" ? "fa-youtube" : "fa-instagram"}`} />
