@@ -41,10 +41,25 @@ export default function Catalog() {
           "@context": "https://schema.org",
           "@type": "ItemList",
           name: "Excel Packaging E-Catalog",
-          itemListElement: shown.slice(0, 20).map((p, i) => ({
+          itemListElement: shown.slice(0, 30).map((p, i) => ({
             "@type": "ListItem",
             position: i + 1,
-            name: p.name,
+            item: {
+              "@type": "Product",
+              name: p.name,
+              description: p.desc,
+              image: (p.image || "").startsWith("/api/") ? undefined : p.image,
+              category: p.category_label,
+              brand: { "@type": "Brand", name: "Excel Packaging and Taste Foods" },
+              offers: {
+                "@type": "Offer",
+                availability: "https://schema.org/InStock",
+                priceCurrency: "INR",
+                price: "0",
+                priceValidUntil: "2027-12-31",
+                seller: { "@type": "Organization", name: "Excel Packaging and Taste Foods" },
+              },
+            },
           })),
         }}
       />

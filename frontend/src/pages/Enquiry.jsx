@@ -14,6 +14,15 @@ const EMPTY = {
   what: "", when: "", where: "", division: "packaging",
 };
 
+const FAQS = [
+  { q: "Do you supply packaging in bulk for restaurants and hotels?", a: "Yes. We are a B2B supplier and specialise in bulk fulfilment for restaurants, cloud kitchens, caterers and hotels across Chennai. Share your monthly quantity in the enquiry form for a custom quote." },
+  { q: "What is the minimum order quantity?", a: "Minimum quantities vary by product. Most food containers, eco disposables and foils are supplied by the case/carton. Tell us your requirement and we'll advise the most economical order size." },
+  { q: "Do you offer eco-friendly and compostable options?", a: "Absolutely. Our eco range includes sugarcane bagasse plates and bowls, wooden cutlery, kraft paper products and corn-starch (PLA) items — all biodegradable and food-safe." },
+  { q: "Which areas in Chennai do you deliver to?", a: "We deliver across Chennai including Guindy, T. Nagar, Ambattur, Anna Nagar, OMR and surrounding areas. Same-day dispatch is available for bulk orders." },
+  { q: "Do you also supply cleaning and sanitization chemicals?", a: "Yes, through our EliteCare division — glass and floor cleaners, degreasers, hospital-grade disinfectants, and laundry & kitchen hygiene supplies for hospitality businesses." },
+  { q: "How do I get a price quote?", a: "Fill in the enquiry form on this page with your company name, products required, quantity and the 3 W's (What, When, Where). Our team responds quickly with a customised quote." },
+];
+
 export default function Enquiry() {
   const { data } = useContent();
   const c = data?.contact || {};
@@ -21,6 +30,7 @@ export default function Enquiry() {
   const [form, setForm] = useState(EMPTY);
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
+  const [openFaq, setOpenFaq] = useState(0);
 
   useEffect(() => {
     const product = params.get("product");
@@ -61,6 +71,18 @@ export default function Enquiry() {
 
   const inputCls = "w-full bg-panel border border-line rounded-2xl px-5 py-4 text-ink placeholder:text-ink2/60 focus:outline-none focus:border-leaf focus:bg-surf transition-colors";
 
+  const mapAddress = `Excel Packaging and Taste Foods, ${c.address_line1 || "Industrial Estate, Guindy"}, ${c.address_line2 || "Chennai, Tamil Nadu 600032"}`;
+  const mapSrc = `https://www.google.com/maps?q=${encodeURIComponent(mapAddress)}&output=embed`;
+  const faqLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: FAQS.map((f) => ({
+      "@type": "Question",
+      name: f.q,
+      acceptedAnswer: { "@type": "Answer", text: f.a },
+    })),
+  };
+
   return (
     <div className="bg-bg">
       <Seo
@@ -68,6 +90,7 @@ export default function Enquiry() {
         description="Request a custom quote for bulk food packaging, eco disposables or cleaning chemicals in Chennai. Contact Excel Packaging and Taste Foods by phone, email or the enquiry form — fast response for restaurants, hotels and cloud kitchens."
         keywords="food packaging quote Chennai, bulk packaging enquiry, contact food packaging supplier Chennai, B2B packaging quote, custom packaging Chennai"
         path="/enquiry"
+        jsonLd={faqLd}
       />
       <Navbar />
       <main className="pt-36 pb-16 px-6 md:px-12 max-w-7xl mx-auto">
@@ -198,6 +221,69 @@ export default function Enquiry() {
           </div>
         </div>
       </main>
+
+      {/* Map + FAQ */}
+      <section className="px-6 md:px-12 max-w-7xl mx-auto pb-8" data-testid="map-faq">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 items-start">
+          {/* Map */}
+          <Reveal>
+            <div className="bg-surf p-4 rounded-jumbo shadow-card border border-line">
+              <h2 className="text-2xl font-bold text-ink px-2 pt-2 pb-4 flex items-center gap-3">
+                <i className="fa-solid fa-location-dot text-leaf" /> Find Us in Chennai
+              </h2>
+              <iframe
+                title="Excel Packaging location on Google Maps"
+                src={mapSrc}
+                className="w-full h-[360px] rounded-[1.8rem] border-0"
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                data-testid="google-map"
+              />
+              <a
+                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapAddress)}`}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 mt-4 ml-2 text-sm font-bold text-ink hover:text-sunset transition-colors"
+                data-testid="open-in-maps"
+              >
+                Open in Google Maps <i className="fa-solid fa-arrow-up-right-from-square text-xs" />
+              </a>
+            </div>
+          </Reveal>
+
+          {/* FAQ */}
+          <Reveal delay={0.1}>
+            <div data-testid="faq-section">
+              <p className="text-leaf font-bold tracking-widest uppercase text-xs mb-3">Questions</p>
+              <h2 className="text-3xl md:text-4xl font-extrabold text-ink mb-8 tracking-tight">Frequently Asked</h2>
+              <div className="space-y-3">
+                {FAQS.map((f, i) => {
+                  const open = openFaq === i;
+                  return (
+                    <div key={i} className={`rounded-2xl border transition-colors ${open ? "border-leaf bg-leaf/10" : "border-line bg-surf"}`}>
+                      <button
+                        onClick={() => setOpenFaq(open ? -1 : i)}
+                        data-testid={`faq-toggle-${i}`}
+                        className="w-full flex items-center justify-between gap-4 text-left px-5 py-4"
+                        aria-expanded={open}
+                      >
+                        <span className="font-bold text-ink text-sm md:text-base">{f.q}</span>
+                        <i className={`fa-solid fa-chevron-down text-ink2 transition-transform duration-300 ${open ? "rotate-180" : ""}`} />
+                      </button>
+                      <div className={`grid transition-all duration-300 ease-out ${open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}>
+                        <div className="overflow-hidden">
+                          <p className="px-5 pb-5 text-ink2 text-sm leading-relaxed">{f.a}</p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
       <Footer />
     </div>
   );
