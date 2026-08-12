@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex" />
+<title>Excel Packaging — Design & Wireframes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --ink:#1A1C19; --ink2:#5C6159; --bg:#F1F7E6; --surf:#fff; --panel:#E7F1D3; --line:#DCE7CE;
+    --leaf:#93C572; --pistachio:#BAED91; --sun:#FFDA03; --sunset:#FD5E53;
+    --wf:#e9ece6; --wf2:#d7dcd0; --wf3:#c4cabb; --wftext:#9aa192;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1100px;margin:0 auto;padding:40px 24px 80px}
+  header.cover{background:var(--ink);color:#fff;border-radius:28px;padding:56px 44px;margin-bottom:48px;position:relative;overflow:hidden}
+  header.cover .badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);padding:8px 16px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:.2em;text-transform:uppercase}
+  header.cover h1{font-size:44px;line-height:1.05;margin:22px 0 12px;letter-spacing:-.02em}
+  header.cover h1 span{color:var(--leaf)}
+  header.cover p{color:rgba(255,255,255,.6);max-width:560px}
+  .blob{position:absolute;border-radius:50%;filter:blur(60px);opacity:.5}
+  .blob.a{width:220px;height:220px;background:var(--sun);top:-60px;right:-40px}
+  .blob.b{width:220px;height:220px;background:var(--sunset);bottom:-80px;right:120px}
+  h2.sec{font-size:13px;font-weight:800;letter-spacing:.25em;text-transform:uppercase;color:var(--leaf);margin:56px 0 6px}
+  h3.big{font-size:30px;letter-spacing:-.02em;margin-bottom:24px}
+  .grid{display:grid;gap:16px}
+  .swatches{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+  .sw{border-radius:16px;overflow:hidden;border:1px solid var(--line);background:var(--surf)}
+  .sw .chip{height:76px}
+  .sw .meta{padding:10px 12px}
+  .sw .meta b{display:block;font-size:13px}
+  .sw .meta span{font-size:12px;color:var(--ink2)}
+  .card{background:var(--surf);border:1px solid var(--line);border-radius:20px;padding:24px}
+  .type-row{display:flex;align-items:baseline;gap:16px;border-bottom:1px dashed var(--line);padding:14px 0}
+  .type-row small{color:var(--ink2);font-size:12px;width:120px;flex:none}
+  .pills{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+  .pill{border-radius:999px;padding:12px 24px;font-weight:700;font-size:14px;border:none;cursor:default}
+  .p-ink{background:var(--ink);color:#fff}
+  .p-sun{background:var(--sun);color:var(--ink)}
+  .p-sunset{background:var(--sunset);color:#fff}
+  .p-leaf{background:var(--leaf);color:#fff}
+  .p-out{background:#fff;border:1px solid var(--line);color:var(--ink)}
+  .compcards{grid-template-columns:repeat(auto-fill,minmax(180px,1fr))}
+  .pcard{background:var(--surf);border:1px solid var(--line);border-radius:22px;overflow:hidden}
+  .pcard .ph{height:110px;background:linear-gradient(135deg,var(--pistachio),var(--leaf))}
+  .pcard .b{padding:14px}
+  .pcard .b .t{font-weight:700;font-size:14px}
+  .pcard .b .d{font-size:12px;color:var(--ink2);margin-top:4px}
+  /* Wireframes */
+  .wfpage{background:var(--surf);border:1px solid var(--line);border-radius:20px;padding:18px;margin-bottom:26px}
+  .wfpage .label{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+  .wfpage .label b{font-size:16px}
+  .wfpage .label span{font-size:12px;color:var(--ink2);background:var(--panel);padding:4px 10px;border-radius:999px}
+  .wf{background:#fbfcfa;border:1px dashed var(--line);border-radius:14px;padding:14px}
+  .box{background:var(--wf);border-radius:10px;color:var(--wftext);font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;text-align:center;padding:10px}
+  .box.d{background:var(--wf2)} .box.dd{background:var(--wf3);color:#fff}
+  .row{display:flex;gap:10px;margin-bottom:10px}
+  .nav{height:44px;border-radius:999px}
+  .hero{height:180px}
+  .col{flex:1}
+  .g3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+  .g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .h60{height:60px}.h90{height:90px}.h120{height:120px}.h150{height:150px}.h200{height:200px}.h30{height:30px}.h40{height:40px}
+  .footer{height:120px;border-radius:14px}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-size:12px;color:var(--ink2);margin:10px 0 30px}
+  .legend i{display:inline-block;width:14px;height:14px;border-radius:4px;vertical-align:-2px;margin-right:6px}
+  .note{font-size:13px;color:var(--ink2);margin-top:6px}
+  @media print{body{background:#fff}.wrap{max-width:none}header.cover{break-inside:avoid}.wfpage{break-inside:avoid}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="cover">
+    <div class="blob a"></div><div class="blob b"></div>
+    <div style="position:relative">
+      <span class="badge">● Design Presentation · v1</span>
+      <h1>Excel <span>Packaging</span><br/>Design System & Wireframes</h1>
+      <p>A pre-build blueprint of the layout, structure and visual language for the Excel Packaging and Taste Foods website. Grayscale blocks show structure; the colour system shows the final look.</p>
+    </div>
+  </header>
+
+  <!-- SITEMAP -->
+  <h2 class="sec">Information Architecture</h2>
+  <h3 class="big">Sitemap</h3>
+  <div class="card">
+    <div class="g4">
+      <div class="box dd h60">Home</div>
+      <div class="box d h60">E-Catalog</div>
+      <div class="box d h60">Cleaning &amp; Hospitality</div>
+      <div class="box d h60">About</div>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <div class="box d h60 col">Contact / Enquiry</div>
+      <div class="box h60 col">Admin CMS (private · /admin)</div>
+    </div>
+    <p class="note">Shared header (navigation) and full footer appear on every public page. Admin is not linked publicly.</p>
+  </div>
+
+  <!-- COLOR -->
+  <h2 class="sec">Brand</h2>
+  <h3 class="big">Colour System</h3>
+  <div class="grid swatches">
+    <div class="sw"><div class="chip" style="background:#FFDA03"></div><div class="meta"><b>Sunflower</b><span>#FFDA03 · primary accent</span></div></div>
+    <div class="sw"><div class="chip" style="background:#FD5E53"></div><div class="meta"><b>Sunset</b><span>#FD5E53 · CTA / highlight</span></div></div>
+    <div class="sw"><div class="chip" style="background:#93C572"></div><div class="meta"><b>Leaf</b><span>#93C572 · primary green</span></div></div>
+    <div class="sw"><div class="chip" style="background:#BAED91"></div><div class="meta"><b>Pistachio</b><span>#BAED91 · support</span></div></div>
+    <div class="sw"><div class="chip" style="background:#E7F1D3"></div><div class="meta"><b>Panel</b><span>#E7F1D3 · sections</span></div></div>
+    <div class="sw"><div class="chip" style="background:#F1F7E6"></div><div class="meta"><b>Background</b><span>#F1F7E6</span></div></div>
+    <div class="sw"><div class="chip" style="background:#1A1C19"></div><div class="meta"><b>Ink</b><span>#1A1C19 · text/footer</span></div></div>
+    <div class="sw"><div class="chip" style="background:#fff;border-bottom:1px solid var(--line)"></div><div class="meta"><b>Surface</b><span>#FFFFFF · cards</span></div></div>
+  </div>
+
+  <!-- TYPE -->
+  <h2 class="sec">Typography</h2>
+  <h3 class="big">Plus Jakarta Sans</h3>
+  <div class="card">
+    <div class="type-row"><small>H1 / Display</small><div style="font-size:40px;font-weight:800;letter-spacing:-.02em">Superior Packaging</div></div>
+    <div class="type-row"><small>H2 / Heading</small><div style="font-size:28px;font-weight:800">Core Categories</div></div>
+    <div class="type-row"><small>H3 / Card title</small><div style="font-size:18px;font-weight:700">Sugarcane Bagasse Plates</div></div>
+    <div class="type-row"><small>Body</small><div style="font-size:15px;color:var(--ink2)">Chennai's trusted B2B supplier of food-grade packaging and eco disposables.</div></div>
+    <div class="type-row" style="border:none"><small>Eyebrow / Label</small><div style="font-size:12px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:var(--leaf)">Since 2019</div></div>
+  </div>
+
+  <!-- COMPONENTS -->
+  <h2 class="sec">Components</h2>
+  <h3 class="big">Buttons &amp; Pills</h3>
+  <div class="card" style="margin-bottom:16px">
+    <div class="pills">
+      <button class="pill p-ink">Get a Quote →</button>
+      <button class="pill p-sun">View E-Catalog</button>
+      <button class="pill p-sunset">Publish / CTA</button>
+      <button class="pill p-leaf">Submit Enquiry</button>
+      <button class="pill p-out">Filter pill</button>
+    </div>
+    <p class="note">Rounded pill and card language throughout · soft shadows · 3rem "jumbo" radius on large panels.</p>
+  </div>
+  <div class="grid compcards">
+    <div class="pcard"><div class="ph"></div><div class="b"><div class="t">Product Card</div><div class="d">Image · badge · title · description · enquire</div></div></div>
+    <div class="pcard"><div class="ph" style="background:linear-gradient(135deg,#FFDA03,#FD5E53)"></div><div class="b"><div class="t">Featured Card</div><div class="d">Star badge · shows first</div></div></div>
+    <div class="pcard"><div class="ph" style="background:linear-gradient(135deg,#BAED91,#FFDA03)"></div><div class="b"><div class="t">Category Card</div><div class="d">Image tile · explore link</div></div></div>
+  </div>
+
+  <!-- WIREFRAMES -->
+  <h2 class="sec">Layouts</h2>
+  <h3 class="big">Wireframes</h3>
+  <div class="legend">
+    <span><i style="background:var(--wf)"></i>Content block</span>
+    <span><i style="background:var(--wf2)"></i>Media / image</span>
+    <span><i style="background:var(--wf3)"></i>Primary element</span>
+  </div>
+
+  <!-- HOME -->
+  <div class="wfpage">
+    <div class="label"><b>Home</b><span>/</span></div>
+    <div class="wf">
+      <div class="row"><div class="box nav dd" style="width:170px">Logo + Nav</div><div class="col"></div><div class="box nav" style="width:130px">Get a Quote</div></div>
+      <div class="box dd hero">HERO IMAGE CAROUSEL · headline · CTA · dots/arrows</div>
+      <div class="box h30" style="margin:10px 0">Marquee ribbon</div>
+      <div class="row"><div class="box dd h200 col">Story image · "Since 2019" badge</div><div class="box h200 col">Our Story · stats · Read more</div></div>
+      <div class="box h30">Section: Core Categories + View E-Catalog</div>
+      <div class="g4" style="margin:10px 0"><div class="box d h120">Cat</div><div class="box d h120">Cat</div><div class="box d h120">Cat</div><div class="box d h120">Cat</div></div>
+      <div class="box h30">Featured Picks (sun panel)</div>
+      <div class="g4" style="margin:10px 0"><div class="box d h120">Prod</div><div class="box d h120">Prod</div><div class="box d h120">Prod</div><div class="box d h120">Prod</div></div>
+      <div class="g4" style="margin-bottom:10px"><div class="box h90">Why 1</div><div class="box h90">Why 2</div><div class="box h90">Why 3</div><div class="box h90">Why 4</div></div>
+      <div class="box dd h150">Social / Instagram carousel (one slide · arrows)</div>
+      <div class="g3" style="margin:10px 0"><div class="box h120">Testimonial</div><div class="box h120">Testimonial</div><div class="box h120">Testimonial</div></div>
+      <div class="box dd h90">CTA banner — Get Custom Quote</div>
+      <div class="box footer dd" style="margin-top:10px">FOOTER (shared) — blurb · contact · socials · quick links</div>
+    </div>
+  </div>
+
+  <!-- CATALOG -->
+  <div class="wfpage">
+    <div class="label"><b>E-Catalog</b><span>/catalog</span></div>
+    <div class="wf">
+      <div class="row"><div class="box nav dd" style="width:170px">Logo + Nav</div><div class="col"></div><div class="box nav" style="width:130px">Get a Quote</div></div>
+      <div class="box d h90">Hero intro — title + description</div>
+      <div class="row" style="margin:10px 0"><div class="box h40" style="width:90px">All</div><div class="box h40" style="width:110px">Eco</div><div class="box h40" style="width:110px">Plastic</div><div class="box h40" style="width:110px">Paper</div><div class="box h40" style="width:130px">PLA</div><div class="box h40" style="width:120px">Foil</div></div>
+      <div class="g4"><div class="box d h150">Prod</div><div class="box d h150">Prod</div><div class="box d h150">Prod</div><div class="box d h150">Prod</div><div class="box d h150">Prod</div><div class="box d h150">Prod</div><div class="box d h150">Prod</div><div class="box d h150">Prod</div></div>
+      <div class="box dd h90" style="margin:10px 0">"Need a Custom Quote?" banner</div>
+      <div class="box footer dd">FOOTER (shared)</div>
+    </div>
+  </div>
+
+  <!-- CLEANING -->
+  <div class="wfpage">
+    <div class="label"><b>Cleaning &amp; Hospitality (EliteCare)</b><span>/cleaning</span></div>
+    <div class="wf">
+      <div class="row"><div class="box nav dd" style="width:170px">Logo + Nav</div><div class="col"></div><div class="box nav" style="width:130px">Get a Quote</div></div>
+      <div class="row"><div class="box col h150">Hero copy + CTAs</div><div class="box dd col h150">Hero image</div></div>
+      <div class="g3" style="margin:10px 0"><div class="box h60">Feature</div><div class="box h60">Feature</div><div class="box h60">Feature</div></div>
+      <div class="row"><div class="box h40" style="width:120px">All</div><div class="box h40" style="width:140px">Housekeeping</div><div class="box h40" style="width:130px">Laundry</div><div class="box h40" style="width:130px">Kitchen</div><div class="box h40" style="width:140px">Sanitization</div></div>
+      <div class="g3" style="margin:10px 0"><div class="box d h150">Chem</div><div class="box d h150">Chem</div><div class="box d h150">Chem</div><div class="box d h150">Chem</div><div class="box d h150">Chem</div><div class="box d h150">Chem</div></div>
+      <div class="box dd h90">Audit / consultation CTA</div>
+      <div class="box footer dd" style="margin-top:10px">FOOTER (shared)</div>
+    </div>
+  </div>
+
+  <!-- ABOUT -->
+  <div class="wfpage">
+    <div class="label"><b>About</b><span>/about</span></div>
+    <div class="wf">
+      <div class="row"><div class="box nav dd" style="width:170px">Logo + Nav</div><div class="col"></div><div class="box nav" style="width:130px">Get a Quote</div></div>
+      <div class="box d h120">Big headline + intro</div>
+      <div class="g2" style="margin:10px 0"><div class="box h120">Mission</div><div class="box dd h120">Vision</div></div>
+      <div class="row"><div class="box dd col h200">Warehouse image</div><div class="box col h200">3 numbered pillars (01 · 02 · 03)</div></div>
+      <div class="box footer dd" style="margin-top:10px">FOOTER (shared)</div>
+    </div>
+  </div>
+
+  <!-- CONTACT -->
+  <div class="wfpage">
+    <div class="label"><b>Contact / Enquiry</b><span>/enquiry</span></div>
+    <div class="wf">
+      <div class="row"><div class="box nav dd" style="width:170px">Logo + Nav</div><div class="col"></div><div class="box nav" style="width:130px">Get a Quote</div></div>
+      <div class="row"><div class="box col h200">Headline + contact info (phone · email · address)</div><div class="box dd col h200">Enquiry form — company · products · quantity · 3 W's</div></div>
+      <div class="row" style="margin-top:10px"><div class="box dd col h150">Google Map embed</div><div class="box col h150">FAQ accordion (FAQ schema)</div></div>
+      <div class="box footer dd" style="margin-top:10px">FOOTER (shared)</div>
+    </div>
+  </div>
+
+  <!-- ADMIN -->
+  <div class="wfpage">
+    <div class="label"><b>Admin CMS</b><span>/admin · private</span></div>
+    <div class="wf">
+      <div class="box dd h40" style="margin-bottom:10px">Top bar — Preview · Save Draft · Publish Live · Logout</div>
+      <div class="row">
+        <div class="box h200" style="width:180px">Sidebar tabs: Enquiries · Hero · Categories · Products · Cleaning · Social · Instagram · Contact · Settings</div>
+        <div class="box d col h200">Editor panel — drag-reorder · upload images · featured toggle · bulk upload</div>
+      </div>
+    </div>
+  </div>
+
+  <p class="note" style="margin-top:30px;text-align:center">Excel Packaging and Taste Foods · Design blueprint · Grayscale = structure, colour swatches = final palette. Open the live site for the full realised design.</p>
+
+</div>
+</body>
+</html>
