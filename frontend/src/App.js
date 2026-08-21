@@ -4,6 +4,7 @@ import { Toaster } from "sonner";
 import { AuthProvider } from "@/context/AuthContext";
 import { CartProvider } from "@/context/CartContext";
 import SmoothScroll from "@/components/SmoothScroll";
+import WhatsAppFab from "@/components/WhatsAppFab";
 import Home from "@/pages/Home";
 import About from "@/pages/About";
 import Catalog from "@/pages/Catalog";
@@ -29,6 +30,7 @@ function App() {
                 <Route path="/admin" element={<AdminDashboard />} />
               </Routes>
             </SmoothScroll>
+            <WhatsAppFab />
             <Toaster position="top-center" richColors />
           </CartProvider>
         </AuthProvider>

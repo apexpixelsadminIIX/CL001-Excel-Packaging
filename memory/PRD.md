@@ -46,3 +46,6 @@ Production-ready, fully responsive B2B marketing website for "Excel Packaging an
 - Custom Branding (Category 8) restructured per Excel "Custom Branding" sheet: product = item (Tissues, Food Containers, SOS Paper Bags, GR Sheets); Type/Method dropdown = printing methods (Custom Printing / Screen Printing (Lid & Bottom) / IML); new MOQ dropdown = MOQ options.
 - Enquiry line items now render Size / Type-Method / MOQ / Quantity with labels. Backend EnquiryItem gained `moq`; included in items_text summary (CSV/Sheet). CatalogView shows MOQ chips.
 - Files: frontend Enquiry.jsx, CatalogView.jsx, admin/AdminDashboard.jsx; backend server.py, content_data.py, catalog_seed.py. Live DB (site_content) updated for catalog + contact.whatsapp.
+
+## Update — 2026-07 (Floating WhatsApp button)
+- Added persistent floating WhatsApp button (components/WhatsAppFab.jsx) rendered globally in App.js. Uses contact.whatsapp number, hidden on /admin routes, pulse animation, data-testid="floating-whatsapp".
