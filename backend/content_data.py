@@ -37,6 +37,8 @@ IMG = {
     "warehouse2": "https://images.unsplash.com/photo-1766040923580-16ad32fae8b4?w=900&q=80",
 }
 
+from catalog_seed import CATALOG
+
 # Category sort priority: eco first, then plastic, paper, corn starch (pla), foil
 PRIORITY = {"eco": 1, "plastic": 2, "paper": 3, "cornstarch": 4, "foil": 5}
 
@@ -153,4 +155,5 @@ DEFAULT_CONTENT = {
     "settings": {
         "sheets_webhook_url": "",  # Google Apps Script Web App URL for Sheet sync
     },
+    "catalog": CATALOG,
 }

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { useCart } from "@/context/CartContext";
 
 const LINKS = [
   { to: "/", label: "Home" },
@@ -14,6 +15,7 @@ export default function Navbar() {
   const { pathname } = useLocation();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const { count } = useCart();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -57,6 +59,17 @@ export default function Navbar() {
       </motion.div>
 
       <div className="flex items-center gap-3 pointer-events-auto">
+        <Link
+          to="/enquiry"
+          data-testid="nav-cart"
+          aria-label="Enquiry cart"
+          className="relative w-11 h-11 flex items-center justify-center rounded-full bg-surf border border-line text-ink shadow-card hover:bg-sun transition-colors"
+        >
+          <i className="fa-solid fa-clipboard-list" />
+          {count > 0 && (
+            <span data-testid="cart-count" className="absolute -top-1 -right-1 min-w-5 h-5 px-1 bg-sunset text-white text-[11px] font-bold rounded-full flex items-center justify-center">{count}</span>
+          )}
+        </Link>
         <Link
           to="/enquiry"
           data-testid="nav-get-quote"

@@ -23,6 +23,17 @@ import requests
 
 from content_data import DEFAULT_CONTENT, PRIORITY
 
+INTERNAL_PRODUCT_FIELDS = ["hsn", "base_price", "gst", "total_price", "notes"]
+
+
+def _strip_catalog_internal(catalog):
+    out = []
+    for c in (catalog or []):
+        c = dict(c)
+        c["products"] = [{k: v for k, v in p.items() if k not in INTERNAL_PRODUCT_FIELDS} for p in c.get("products", [])]
+        out.append(c)
+    return out
+
 mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
@@ -79,18 +90,28 @@ class LoginInput(BaseModel):
     password: str
 
 
+class EnquiryItem(BaseModel):
+    category: Optional[str] = ""
+    product: str
+    size: Optional[str] = ""
+    type: Optional[str] = ""
+    quantity: Optional[str] = ""
+
+
 class EnquiryInput(BaseModel):
     company_name: str
     contact_name: Optional[str] = ""
     email: Optional[str] = ""
     phone: Optional[str] = ""
     products_offered: Optional[str] = ""
-    products_required: str
-    quantity: str
+    products_required: Optional[str] = ""
+    quantity: Optional[str] = ""
     what: str
     when: str
     where: str
     division: Optional[str] = "packaging"
+    items: Optional[List[EnquiryItem]] = None
+    remarks: Optional[str] = ""
 
 
 # ---------- Auth routes ----------
@@ -120,6 +141,8 @@ async def _strip_public(doc: dict) -> dict:
     # never leak operational secrets publicly
     doc["instagram_enabled"] = bool(settings.get("instagram_enabled") and settings.get("instagram", {}).get("access_token"))
     doc.pop("settings", None)
+    if "catalog" in doc:
+        doc["catalog"] = _strip_catalog_internal(doc["catalog"])
     return doc
 
 
@@ -203,6 +226,20 @@ async def create_enquiry(data: EnquiryInput):
     enq = data.model_dump()
     enq["id"] = str(uuid.uuid4())
     enq["created_at"] = datetime.now(timezone.utc).isoformat()
+    # Build a readable, price-free summary of line items for admin/CSV/Sheet
+    if enq.get("items"):
+        parts = []
+        for it in enq["items"]:
+            attrs = [a for a in [it.get("size"), it.get("type")] if a]
+            label = it.get("product", "")
+            if attrs:
+                label += " (" + ", ".join(attrs) + ")"
+            if it.get("quantity"):
+                label += " x " + str(it["quantity"])
+            parts.append(label)
+        enq["items_text"] = "; ".join(parts)
+        if not enq.get("products_required"):
+            enq["products_required"] = enq["items_text"]
     await db.enquiries.insert_one(dict(enq))
     await push_to_google_sheet(enq)
     return {"success": True, "id": enq["id"]}

@@ -1,0 +1,711 @@
+[
+ {
+  "id": "plastic-containers",
+  "name": "Plastic Containers",
+  "desc": "Plastic food containers, buckets, and trays across various capacities.",
+  "products": [
+   {
+    "id": "plastic-containers-food-containers",
+    "sub_category": "Food Containers",
+    "name": "Food Containers",
+    "sizes": [
+     "25 ml",
+     "50 ml",
+     "100 ml",
+     "150 ml",
+     "200 ml",
+     "250 ml",
+     "300 ml",
+     "400 ml",
+     "500 ml",
+     "750ml",
+     "1000 ml",
+     "650 ml"
+    ],
+    "types": [
+     "round plastic",
+     "rectangle plastic"
+    ],
+    "moq": [],
+    "image": "",
+    "images": [],
+    "desc": ""
+   },
+   {
+    "id": "plastic-containers-biryani-bucket",
+    "sub_category": "Biryani Bucket",
+    "name": "Biryani Bucket",
+    "sizes": [
+     "2500 ml",
+     "3200 ml",
+     "4500 ml"
+    ],
+    "types": [
+     "biryani Bucket"
+    ],
+    "moq": [],
+    "image": "",
+    "images": [],
+    "desc": ""
+   },
+   {
+    "id": "plastic-containers-food-tray",
+    "sub_category": "Food Tray",
+    "name": "Food Tray",
+    "sizes": [
+     "2 CP",
+     "3 CP mini",
+     "3 CP XL",
+     "4 CP",
+     "4 CP TRAY",
+     "5 CP",
+     "6 CP",
+     "8 CP"
+    ],
+    "types": [],
+    "moq": [],
+    "image": "",
+    "images": [],
+    "desc": ""
+   }
+  ]
+ },
+ {
+  "id": "eco-friendly",
+  "name": "Eco-Friendly Range",
+  "desc": "Biodegradable / compostable packaging — sugarcane plates & bowls, SOS paper bags, paper plates.",
+  "products": [
+   {
+    "id": "eco-friendly-plates",
+    "sub_category": "Plates",
+    "name": "Plates",
+    "sizes": [
+     "6' inch",
+     "7'inch",
+     "8'inch",
+     "9'inch",
+     "10'inch",
+     "10'inch(3 CP)",
+     "12'inch",
+     "12'inch(3 CP)"
+    ],
+    "types": [],
+    "moq": [],
+    "image": "",
+    "images": [],
+    "desc": ""
+   },
+   {
+    "id": "eco-friendly-bowl",
+    "sub_category": "Bowl",
+    "name": "Bowl",
+    "sizes": [
+     "120 ml",
+     "180 ml",
+     "250 ml",
+     "360 ml"
+    ],
+    "types": [],
+    "moq": [],
+    "image": "",
+    "images": [],
+    "desc": ""
+   },
+   {
+    "id": "eco-friendly-sos-paper-bags",
+    "sub_category": "SOS Paper Bags",
+    "name": "SOS Paper Bags",
+    "sizes": [
+     "Size - 4",
+     "Size -6",
+     "Size -8",
+     "Size -12",
+     "Size -16"
+    ],
+    "types": [],
+    "moq": [],
+    "image": "",
+    "images": [],
+    "desc": ""
+   },
+   {
+    "id": "eco-friendly-paper-plates",
+    "sub_category": "Paper Plates",
+    "name": "Paper Plates",
+    "sizes": [
+     "6'inch",
+     "7'inch",
+     "8'inch",
+     "10'inch",
+     "12'inch"
+    ],
+    "types": [],
+    "moq": [],
+    "image": "",
+    "images": [],
+    "desc": ""
+   },
+   {
+    "id": "eco-friendly-gr-sheets",
+    "sub_category": "GR Sheets",
+    "name": "GR Sheets",
+    "sizes": [
+     "10x10",
+     "12x12",
+     "14x14"
+    ],
+    "types": [],
+    "moq": [],
+    "image": "",
+    "images": [],
+    "desc": ""
+   }
+  ]
+ },
+ {
+  "id": "cutlery",
+  "name": "Disposable Cutlery",
+  "desc": "Wooden spoons, forks, and sporks.",
+  "products": [
+   {
+    "id": "cutlery-wooden-spoon",
+    "sub_category": "Wooden Spoon",
+    "name": "Wooden Spoon",
+    "sizes": [
+     "140 Pieces",
+     "160 Pieces"
+    ],
+    "types": [],
+    "moq": [],
+    "image": "",
+    "images": [],
+    "desc": ""
+   },
+   {
+    "id": "cutlery-wooden-fork",
+    "sub_category": "Wooden Fork",
+    "name": "Wooden Fork",
+    "sizes": [
+     "140 Pieces",
+     "160 Pieces"
+    ],
+    "types": [],
+    "moq": [],
+    "image": "",
+    "images": [],
+    "desc": ""
+   },
+   {
+    "id": "cutlery-spork",
+    "sub_category": "Spork",
+    "name": "Spork",
+    "sizes": [
+     "160 Pieces"
+    ],
+    "types": [],
+    "moq": [],
+    "image": "",
+    "images": [],
+    "desc": ""
+   }
+  ]
+ },
+ {
+  "id": "general-supplies",
+  "name": "General Supplies",
+  "desc": "Foil products, garbage covers, cling film, carry bags, butter covers, bill rolls.",
+  "products": [
+   {
+    "id": "general-supplies-foil",
+    "sub_category": "Foil",
+    "name": "Foil",
+    "sizes": [
+     "1 kg",
+     "72 metre"
+    ],
+    "types": [],
+    "moq": [],
+    "image": "",
+    "images": [],
+    "desc": ""
+   },
+   {
+    "id": "general-supplies-foil-cover",
+    "sub_category": "Foil Cover",
+    "name": "Foil Cover",
+    "sizes": [
+     "450 ml",
+     "660 ml",
+     "750 ml"
+    ],
+    "types": [],
+    "moq": [],
+    "image": "",
+    "images": [],
+    "desc": ""
+   },
+   {
+    "id": "general-supplies-foil-wrapper",
+    "sub_category": "Foil Wrapper",
+    "name": "Foil Wrapper",
+    "sizes": [
+     "4/6",
+     "5/7",
+     "6/8",
+     "7/9",
+     "8/10"
+    ],
+    "types": [],
+    "moq": [],
+    "image": "",
+    "images": [],
+    "desc": ""
+   },
+   {
+    "id": "general-supplies-garbage-cover",
+    "sub_category": "Garbage Cover",
+    "name": "Garbage Cover",
+    "sizes": [
+     "Medium",
+     "Larger",
+     "Jumbo"
+    ],
+    "types": [],
+    "moq": [],
+    "image": "",
+    "images": [],
+    "desc": ""
+   },
+   {
+    "id": "general-supplies-cling-film",
+    "sub_category": "Cling film",
+    "name": "Cling film",
+    "sizes": [
+     "Special",
+     "Bio"
+    ],
+    "types": [],
+    "moq": [],
+    "image": "",
+    "images": [],
+    "desc": ""
+   },
+   {
+    "id": "general-supplies-carry-bag",
+    "sub_category": "Carry Bag",
+    "name": "Carry Bag",
+    "sizes": [
+     "10/14",
+     "13/16",
+     "16/20",
+     "20/26",
+     "20/22"
+    ],
+    "types": [],
+    "moq": [],
+    "image": "",
+    "images": [],
+    "desc": ""
+   },
+   {
+    "id": "general-supplies-butter-cover",
+    "sub_category": "Butter Cover",
+    "name": "Butter Cover",
+    "sizes": [
+     "4/6",
+     "5/7",
+     "6/8",
+     "7/9",
+     "8/10"
+    ],
+    "types": [],
+    "moq": [],
+    "image": "",
+    "images": [],
+    "desc": ""
+   },
+   {
+    "id": "general-supplies-bill-roll",
+    "sub_category": "Bill Roll",
+    "name": "Bill Roll",
+    "sizes": [
+     "3'inches"
+    ],
+    "types": [],
+    "moq": [],
+    "image": "",
+    "images": [],
+    "desc": ""
+   },
+   {
+    "id": "general-supplies-accessories",
+    "sub_category": "Accessories",
+    "name": "Accessories",
+    "sizes": [
+     "Hair Spring Cap"
+    ],
+    "types": [],
+    "moq": [],
+    "image": "",
+    "images": [],
+    "desc": ""
+   },
+   {
+    "id": "general-supplies-tape",
+    "sub_category": "Tape",
+    "name": "Tape",
+    "sizes": [
+     "1 inch",
+     "2 inch"
+    ],
+    "types": [],
+    "moq": [],
+    "image": "",
+    "images": [],
+    "desc": ""
+   },
+   {
+    "id": "general-supplies-stirrer",
+    "sub_category": "Stirrer",
+    "name": "Stirrer",
+    "sizes": [
+     "Wooden Stirrer"
+    ],
+    "types": [],
+    "moq": [],
+    "image": "",
+    "images": [],
+    "desc": ""
+   }
+  ]
+ },
+ {
+  "id": "hospitality-amenities",
+  "name": "Hospitality Amenities",
+  "desc": "Guest and hospitality amenity items — caps, gloves, dustbin covers.",
+  "products": [
+   {
+    "id": "hospitality-amenities-condiment-sachets",
+    "sub_category": "Condiment Sachets",
+    "name": "Condiment Sachets",
+    "sizes": [
+     "Sugar Sachets",
+     "Salt Sachets",
+     "Pepper Sachets",
+     "Ketchup Sachets",
+     "Chilli Sachets",
+     "Mayonnaise Sachets"
+    ],
+    "types": [],
+    "moq": [],
+    "image": "",
+    "images": [],
+    "desc": ""
+   }
+  ]
+ },
+ {
+  "id": "beverage",
+  "name": "Beverage Packaging (Chai/Coffee)",
+  "desc": "Pet bottles, sippers, plastic glasses, and paper straws.",
+  "products": [
+   {
+    "id": "beverage-pet-bottles",
+    "sub_category": "Pet Bottles",
+    "name": "Pet Bottles",
+    "sizes": [
+     "200 ml",
+     "250 ml",
+     "300 ml",
+     "350ml",
+     "500ml",
+     "750ml",
+     "1000ml"
+    ],
+    "types": [],
+    "moq": [],
+    "image": "",
+    "images": [],
+    "desc": ""
+   },
+   {
+    "id": "beverage-sipper",
+    "sub_category": "Sipper",
+    "name": "Sipper",
+    "sizes": [
+     "250 ml",
+     "300 ml",
+     "350 ml",
+     "500 ml"
+    ],
+    "types": [],
+    "moq": [],
+    "image": "",
+    "images": [],
+    "desc": ""
+   },
+   {
+    "id": "beverage-plastic-glass",
+    "sub_category": "Plastic Glass",
+    "name": "Plastic Glass",
+    "sizes": [
+     "250ml",
+     "300 ml"
+    ],
+    "types": [],
+    "moq": [],
+    "image": "",
+    "images": [],
+    "desc": ""
+   },
+   {
+    "id": "beverage-paper-straw",
+    "sub_category": "Paper Straw",
+    "name": "Paper Straw",
+    "sizes": [
+     "6 mm",
+     "8 mm",
+     "10 mm"
+    ],
+    "types": [],
+    "moq": [],
+    "image": "",
+    "images": [],
+    "desc": ""
+   },
+   {
+    "id": "beverage-flask",
+    "sub_category": "Flask",
+    "name": "Flask",
+    "sizes": [
+     "250 ml",
+     "500 ml"
+    ],
+    "types": [],
+    "moq": [],
+    "image": "",
+    "images": [],
+    "desc": ""
+   },
+   {
+    "id": "beverage-bio-cup-flat",
+    "sub_category": "Bio Cup - Flat",
+    "name": "Bio Cup - Flat",
+    "sizes": [
+     "90 ml"
+    ],
+    "types": [],
+    "moq": [],
+    "image": "",
+    "images": [],
+    "desc": ""
+   },
+   {
+    "id": "beverage-bio-cup-tall",
+    "sub_category": "Bio Cup - Tall",
+    "name": "Bio Cup - Tall",
+    "sizes": [
+     "110 ml"
+    ],
+    "types": [],
+    "moq": [],
+    "image": "",
+    "images": [],
+    "desc": ""
+   },
+   {
+    "id": "beverage-bio-cup-regular-flat",
+    "sub_category": "Bio Cup - Regular Flat",
+    "name": "Bio Cup - Regular Flat",
+    "sizes": [
+     "150 ml",
+     "210 ml",
+     "250 ml",
+     "300 ml"
+    ],
+    "types": [],
+    "moq": [],
+    "image": "",
+    "images": [],
+    "desc": ""
+   }
+  ]
+ },
+ {
+  "id": "napkins",
+  "name": "Napkins",
+  "desc": "Tissue products — M-fold, L-fold, toilet paper, HRT rolls.",
+  "products": [
+   {
+    "id": "napkins-tissues",
+    "sub_category": "Tissues",
+    "name": "Tissues",
+    "sizes": [
+     "M Fold",
+     "L Fold",
+     "12 Rupees",
+     "17 Rupees",
+     "20 Rupees",
+     "26 Rupees",
+     "Toilet Paper",
+     "HRT Roll",
+     "Kitchen Roll",
+     "Box Tissues"
+    ],
+    "types": [],
+    "moq": [],
+    "image": "",
+    "images": [],
+    "desc": ""
+   },
+   {
+    "id": "napkins-dispenser",
+    "sub_category": "Dispenser",
+    "name": "Dispenser",
+    "sizes": [
+     "L-Fold Dispenser"
+    ],
+    "types": [],
+    "moq": [],
+    "image": "",
+    "images": [],
+    "desc": ""
+   }
+  ]
+ },
+ {
+  "id": "custom-branding",
+  "name": "Custom Branding",
+  "desc": "Custom printed / branded packaging options.",
+  "products": [
+   {
+    "id": "custom-branding-custom-printing",
+    "sub_category": "Custom Printing",
+    "name": "Custom Printing",
+    "sizes": [
+     "Tissues",
+     "SOS Paper Bags",
+     "GR Sheets"
+    ],
+    "types": [],
+    "moq": [
+     "Min. 5 packs / MOQ",
+     "MOQ"
+    ],
+    "image": "",
+    "images": [],
+    "desc": ""
+   },
+   {
+    "id": "custom-branding-screen-printing-lid-bottom",
+    "sub_category": "Screen Printing (Lid & Bottom)",
+    "name": "Screen Printing (Lid & Bottom)",
+    "sizes": [
+     "Food Containers"
+    ],
+    "types": [],
+    "moq": [
+     "Min. 1000 pcs. / MOQ"
+    ],
+    "image": "",
+    "images": [],
+    "desc": ""
+   },
+   {
+    "id": "custom-branding-iml-in-mould-labeling",
+    "sub_category": "IML (In-Mould Labeling)",
+    "name": "IML (In-Mould Labeling)",
+    "sizes": [
+     "Food Containers"
+    ],
+    "types": [],
+    "moq": [
+     "Min. 5000-10,000 / MOQ"
+    ],
+    "image": "",
+    "images": [],
+    "desc": ""
+   }
+  ]
+ },
+ {
+  "id": "eliteclean",
+  "name": "Excel EliteClean",
+  "desc": "Housekeeping and cleaning supplies — chemicals, tools, and consumables.",
+  "products": [
+   {
+    "id": "eliteclean-housekeeping-cleaning-supplies",
+    "sub_category": "Housekeeping & Cleaning Supplies",
+    "name": "Housekeeping & Cleaning Supplies",
+    "sizes": [
+     "Checked cloth",
+     "Hard broom",
+     "Soft broom",
+     "Disinfectant Dettol",
+     "Floor Cleaner",
+     "Wiper with stick",
+     "Mop with stick",
+     "Phenoyil Compound",
+     "Pitambari powder",
+     "Room freshner",
+     "Sabena",
+     "Scotch brite with sponge",
+     "Soap oil",
+     "Steel scrubber",
+     "Toilet cleaner"
+    ],
+    "types": [],
+    "moq": [],
+    "image": "",
+    "images": [],
+    "desc": ""
+   },
+   {
+    "id": "eliteclean-cleaning-chemicals",
+    "sub_category": "Cleaning Chemicals",
+    "name": "Cleaning Chemicals",
+    "sizes": [
+     "Vessel Wash",
+     "Glass Cleaner",
+     "Multipurpose Cleaner",
+     "Grill Cleaner"
+    ],
+    "types": [],
+    "moq": [],
+    "image": "",
+    "images": [],
+    "desc": ""
+   },
+   {
+    "id": "eliteclean-cleaning-tools",
+    "sub_category": "Cleaning Tools",
+    "name": "Cleaning Tools",
+    "sizes": [
+     "Microfiber Cloth",
+     "Floor Brush",
+     "Aluminum Pole(for mop and wiper)",
+     "Soft Broom",
+     "Hard Broom"
+    ],
+    "types": [],
+    "moq": [],
+    "image": "",
+    "images": [],
+    "desc": ""
+   },
+   {
+    "id": "eliteclean-cleaning-consumables",
+    "sub_category": "Cleaning Consumables",
+    "name": "Cleaning Consumables",
+    "sizes": [
+     "Mop Refill"
+    ],
+    "types": [],
+    "moq": [],
+    "image": "",
+    "images": [],
+    "desc": ""
+   }
+  ]
+ }
+]
