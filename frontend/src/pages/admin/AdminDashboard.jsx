@@ -12,6 +12,7 @@ const TABS = [
   { id: "categories", label: "Categories", icon: "fa-grip" },
   { id: "products", label: "Products", icon: "fa-box" },
   { id: "cleaning", label: "Cleaning", icon: "fa-spray-can-sparkles" },
+  { id: "catalog", label: "Catalog (Master)", icon: "fa-layer-group" },
   { id: "social", label: "Social & Videos", icon: "fa-hashtag" },
   { id: "instagram", label: "Instagram Sync", icon: "fa-camera-retro" },
   { id: "contact", label: "Contact", icon: "fa-address-book" },
@@ -247,6 +248,15 @@ export default function AdminDashboard() {
       const map = Object.fromEntries(assigns.map((a) => [a.target, a.url]));
       return { ...c, products: c.products.map((p) => (map[p.id] ? { ...p, image: map[p.id] } : p)) };
     });
+
+  // ---- New master catalog editors ----
+  const updCat = (ci, field, val) => setContent((c) => { const cat = [...c.catalog]; cat[ci] = { ...cat[ci], [field]: val }; return { ...c, catalog: cat }; });
+  const updProd = (ci, pi, field, val) => setContent((c) => { const cat = [...c.catalog]; const ps = [...cat[ci].products]; ps[pi] = { ...ps[pi], [field]: val }; cat[ci] = { ...cat[ci], products: ps }; return { ...c, catalog: cat }; });
+  const addCat = () => setContent((c) => ({ ...c, catalog: [...(c.catalog || []), { id: "cat-" + Date.now(), name: "New Category", desc: "", image: "", products: [] }] }));
+  const rmCat = (ci) => setContent((c) => ({ ...c, catalog: c.catalog.filter((_, i) => i !== ci) }));
+  const addProd = (ci) => setContent((c) => { const cat = [...c.catalog]; cat[ci] = { ...cat[ci], products: [...cat[ci].products, { id: "p-" + Date.now(), name: "New Product", sub_category: "New", sizes: [], types: [], moq: [], image: cat[ci].image, images: [], desc: "", badge: "", hsn: "", base_price: "", gst: "", total_price: "", notes: "" }] }; return { ...c, catalog: cat }; });
+  const rmProd = (ci, pi) => setContent((c) => { const cat = [...c.catalog]; cat[ci] = { ...cat[ci], products: cat[ci].products.filter((_, i) => i !== pi) }; return { ...c, catalog: cat }; });
+  const csvToArr = (s) => s.split(",").map((x) => x.trim()).filter(Boolean);
 
   const save = async () => {
     setSaving(true);
@@ -591,6 +601,57 @@ export default function AdminDashboard() {
                   </SortableItem>
                 ))}
               </Reorder.Group>
+            </section>
+          )}
+
+          {tab === "catalog" && (
+            <section className="space-y-5" data-testid="admin-catalog">
+              <div className="flex items-center justify-between">
+                <h2 className="text-2xl font-extrabold text-ink">Master Catalog ({content.catalog?.length || 0} categories)</h2>
+                <button data-testid="add-category" onClick={addCat} className="bg-leaf text-white px-5 py-2.5 rounded-full text-sm font-bold hover:bg-ink transition-colors"><i className="fa-solid fa-plus mr-2" />Category</button>
+              </div>
+              <p className="text-xs text-ink2">Size / Type / MOQ are comma-separated. Price, HSN &amp; GST are <b>internal only</b> — never shown on the public site or enquiry form.</p>
+              {(content.catalog || []).map((cat, ci) => (
+                <div key={cat.id} className="bg-surf border border-line rounded-2xl p-5 space-y-3" data-testid={`cat-${ci}`}>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-leaf uppercase tracking-widest">Category</span>
+                    <button data-testid={`rm-cat-${ci}`} onClick={() => rmCat(ci)} className="w-9 h-9 rounded-full text-sunset hover:bg-sunset hover:text-white flex items-center justify-center"><i className="fa-solid fa-trash-can" /></button>
+                  </div>
+                  <ImgField label="Category image" value={cat.image} onChange={(v) => updCat(ci, "image", v)} testid={`catimg-${ci}`} />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <Txt label="Name" value={cat.name} onChange={(v) => updCat(ci, "name", v)} />
+                    <Txt label="Description" value={cat.desc} onChange={(v) => updCat(ci, "desc", v)} />
+                  </div>
+                  <div className="pl-3 border-l-2 border-panel space-y-3">
+                    {cat.products.map((p, pi) => (
+                      <div key={p.id} className="bg-panel/50 rounded-xl p-4 space-y-2" data-testid={`prod-${ci}-${pi}`}>
+                        <div className="flex items-center justify-between">
+                          <span className="text-[11px] font-bold text-ink2 uppercase">Sub-category / Product</span>
+                          <button data-testid={`rm-prod-${ci}-${pi}`} onClick={() => rmProd(ci, pi)} className="text-sunset text-sm hover:underline">Remove</button>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                          <Txt label="Name" value={p.name} onChange={(v) => updProd(ci, pi, "name", v)} />
+                          <Txt label="Sub-category tag" value={p.sub_category} onChange={(v) => updProd(ci, pi, "sub_category", v)} />
+                        </div>
+                        <ImgField label="Product image" value={p.image} onChange={(v) => { updProd(ci, pi, "image", v); updProd(ci, pi, "images", [v]); }} testid={`pimg-${ci}-${pi}`} />
+                        <Txt label="Sizes (comma-separated)" value={(p.sizes || []).join(", ")} onChange={(v) => updProd(ci, pi, "sizes", csvToArr(v))} />
+                        <Txt label="Types (comma-separated)" value={(p.types || []).join(", ")} onChange={(v) => updProd(ci, pi, "types", csvToArr(v))} />
+                        <Txt label="MOQ / Qty options (comma-separated)" value={(p.moq || []).join(", ")} onChange={(v) => updProd(ci, pi, "moq", csvToArr(v))} />
+                        <div className="mt-2 p-3 rounded-lg bg-ink/5 border border-line">
+                          <p className="text-[10px] font-bold text-sunset uppercase tracking-widest mb-2"><i className="fa-solid fa-lock mr-1" />Internal only — never public</p>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                            <Txt label="HSN" value={p.hsn} onChange={(v) => updProd(ci, pi, "hsn", v)} />
+                            <Txt label="Base Price" value={p.base_price} onChange={(v) => updProd(ci, pi, "base_price", v)} />
+                            <Txt label="GST" value={p.gst} onChange={(v) => updProd(ci, pi, "gst", v)} />
+                            <Txt label="Total" value={p.total_price} onChange={(v) => updProd(ci, pi, "total_price", v)} />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                    <button data-testid={`add-prod-${ci}`} onClick={() => addProd(ci)} className="text-sm font-bold text-leaf"><i className="fa-solid fa-plus mr-1" />Add product to {cat.name}</button>
+                  </div>
+                </div>
+              ))}
             </section>
           )}
 

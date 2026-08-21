@@ -22,7 +22,14 @@ export default function Home() {
   const { data } = useContent();
   const slides = data?.hero_slides || [];
   const story = data?.story || {};
-  const categories = data?.categories || [];
+  const catalog = data?.catalog || [];
+  const categories = catalog.length
+    ? catalog.slice(0, 8).map((c) => ({
+        id: c.id, title: c.name, desc: c.desc || `${c.products?.length || 0} product lines`,
+        image: c.image, link: c.id === "eliteclean" ? "/cleaning" : `/catalog`,
+        highlight: c.id === "eliteclean",
+      }))
+    : (data?.categories || []);
   const testimonials = data?.testimonials || [];
   const manualSocial = data?.social_posts || [];
   const igEnabled = !!data?.instagram_enabled;
