@@ -95,6 +95,7 @@ class EnquiryItem(BaseModel):
     product: str
     size: Optional[str] = ""
     type: Optional[str] = ""
+    moq: Optional[str] = ""
     quantity: Optional[str] = ""
 
 
@@ -230,7 +231,7 @@ async def create_enquiry(data: EnquiryInput):
     if enq.get("items"):
         parts = []
         for it in enq["items"]:
-            attrs = [a for a in [it.get("size"), it.get("type")] if a]
+            attrs = [a for a in [it.get("size"), it.get("type"), it.get("moq")] if a]
             label = it.get("product", "")
             if attrs:
                 label += " (" + ", ".join(attrs) + ")"

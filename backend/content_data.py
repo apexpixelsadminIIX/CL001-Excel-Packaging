@@ -131,6 +131,7 @@ DEFAULT_CONTENT = {
     "contact": {
         "phone": "+91 98417 35178",
         "phone_link": "+919841735178",
+        "whatsapp": "919841735178",
         "email": "exlpackaging@gmail.com",
         "address_line1": "No 4, 38, Ganapathy Nagar 2nd St, Ekkatuthangal, Chennai, Tamil Nadu 600032",
         "address_line2": "",

@@ -40,3 +40,9 @@ Production-ready, fully responsive B2B marketing website for "Excel Packaging an
 - Phone: +91 98417 35178 (link +919841735178). Email: exlpackaging@gmail.com.
 - Updated in backend seed (content_data.py), live MongoDB `site_content` doc (_id="site"), and fallback defaults in Footer.jsx & Enquiry.jsx.
 - Google Map embed on Enquiry auto-generates from the address fields — now points to the new location.
+
+## Update — 2026-07 (WhatsApp enquiry + Custom Branding variants)
+- WhatsApp: "Send list on WhatsApp" button on Enquiry page composes the full product list + form details and opens wa.me. Number from contact.whatsapp (default 919841735178), CMS-editable via Admin > Contact.
+- Custom Branding (Category 8) restructured per Excel "Custom Branding" sheet: product = item (Tissues, Food Containers, SOS Paper Bags, GR Sheets); Type/Method dropdown = printing methods (Custom Printing / Screen Printing (Lid & Bottom) / IML); new MOQ dropdown = MOQ options.
+- Enquiry line items now render Size / Type-Method / MOQ / Quantity with labels. Backend EnquiryItem gained `moq`; included in items_text summary (CSV/Sheet). CatalogView shows MOQ chips.
+- Files: frontend Enquiry.jsx, CatalogView.jsx, admin/AdminDashboard.jsx; backend server.py, content_data.py, catalog_seed.py. Live DB (site_content) updated for catalog + contact.whatsapp.

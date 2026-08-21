@@ -22,8 +22,8 @@ export default function CatalogView({ categories = [], lockCategory = false }) {
   const enquire = (cat, p) => {
     addItem({
       categoryId: cat.id, category: cat.name, product: p.name,
-      size: p.sizes?.[0] || "", type: p.types?.[0] || "",
-      sizes: p.sizes || [], types: p.types || [], moq: p.moq || [],
+      size: p.sizes?.[0] || "", type: p.types?.[0] || "", moq: p.moq?.[0] || "",
+      sizes: p.sizes || [], types: p.types || [], moqs: p.moq || [],
       image: p.image,
     });
     toast.success(`${p.name} added to your enquiry list.`);
@@ -74,6 +74,11 @@ export default function CatalogView({ categories = [], lockCategory = false }) {
                   {p.types?.length > 0 && (
                     <div className="flex flex-wrap gap-1.5 mb-3">
                       {p.types.map((t) => <span key={t} className="text-[11px] bg-sun/25 text-ink px-2 py-1 rounded-md font-semibold">{t}</span>)}
+                    </div>
+                  )}
+                  {p.moq?.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 mb-3">
+                      {p.moq.map((m) => <span key={m} className="text-[11px] bg-leaf/15 text-leaf px-2 py-1 rounded-md font-semibold">{m}</span>)}
                     </div>
                   )}
                   <button onClick={() => enquire(cat, p)} data-testid={`enquire-${p.id}`}

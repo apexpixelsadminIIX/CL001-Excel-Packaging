@@ -721,6 +721,7 @@ export default function AdminDashboard() {
               <Card>
                 <Txt label="Phone (display)" value={content.contact?.phone} onChange={(v) => update("contact", { ...content.contact, phone: v })} />
                 <Txt label="Phone (tel link, digits only)" value={content.contact?.phone_link} onChange={(v) => update("contact", { ...content.contact, phone_link: v })} />
+                <Txt label="WhatsApp number (country code + number, digits only)" value={content.contact?.whatsapp} onChange={(v) => update("contact", { ...content.contact, whatsapp: v })} />
                 <Txt label="Email" value={content.contact?.email} onChange={(v) => update("contact", { ...content.contact, email: v })} />
                 <Txt label="Address line 1" value={content.contact?.address_line1} onChange={(v) => update("contact", { ...content.contact, address_line1: v })} />
                 <Txt label="Address line 2" value={content.contact?.address_line2} onChange={(v) => update("contact", { ...content.contact, address_line2: v })} />

@@ -43,7 +43,7 @@ export default function Enquiry() {
 
   const addSelected = () => {
     if (!catObj || !prodObj) return toast.error("Choose a category and product.");
-    addItem({ categoryId: catObj.id, category: catObj.name, product: prodObj.name, size: prodObj.sizes?.[0] || "", type: prodObj.types?.[0] || "", sizes: prodObj.sizes || [], types: prodObj.types || [], moq: prodObj.moq || [], image: prodObj.image });
+    addItem({ categoryId: catObj.id, category: catObj.name, product: prodObj.name, size: prodObj.sizes?.[0] || "", type: prodObj.types?.[0] || "", moq: prodObj.moq?.[0] || "", sizes: prodObj.sizes || [], types: prodObj.types || [], moqs: prodObj.moq || [], image: prodObj.image });
     toast.success(`${prodObj.name} added.`);
   };
 
@@ -56,7 +56,7 @@ export default function Enquiry() {
     try {
       const payload = {
         ...form,
-        items: items.map((it) => ({ category: it.category, product: it.product, size: it.size, type: it.type, quantity: it.quantity })),
+        items: items.map((it) => ({ category: it.category, product: it.product, size: it.size, type: it.type, moq: it.moq, quantity: it.quantity })),
       };
       await api.post("/enquiries", payload);
       setDone(true);
@@ -67,6 +67,38 @@ export default function Enquiry() {
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const waNumber = (c.whatsapp || c.phone_link || "919841735178").replace(/\D/g, "");
+  const buildWaMessage = () => {
+    const L = ["Hello Excel Packaging, I'd like a quote."];
+    L.push("");
+    if (form.company_name) L.push(`Company: ${form.company_name}`);
+    if (form.contact_name) L.push(`Contact: ${form.contact_name}`);
+    if (form.phone) L.push(`Phone: ${form.phone}`);
+    if (form.email) L.push(`Email: ${form.email}`);
+    L.push(`Division: ${form.division === "elitecare" ? "EliteClean Chemicals" : "Packaging"}`);
+    L.push("");
+    L.push("Products:");
+    items.forEach((it, i) => {
+      const attrs = [it.size, it.type, it.moq].filter(Boolean).join(", ");
+      let line = `${i + 1}. ${it.product}`;
+      if (attrs) line += ` (${attrs})`;
+      if (it.quantity) line += ` x ${it.quantity}`;
+      L.push(line);
+    });
+    L.push("");
+    if (form.what) L.push(`What: ${form.what}`);
+    if (form.when) L.push(`When: ${form.when}`);
+    if (form.where) L.push(`Where: ${form.where}`);
+    if (form.remarks) L.push(`Remarks: ${form.remarks}`);
+    return L.join("\n");
+  };
+  const sendWhatsApp = () => {
+    if (!form.company_name) return toast.error("Company name is required.");
+    if (items.length === 0) return toast.error("Add at least one product to your enquiry.");
+    const url = `https://wa.me/${waNumber}?text=${encodeURIComponent(buildWaMessage())}`;
+    window.open(url, "_blank", "noopener");
   };
 
   const contactBlocks = [
@@ -147,16 +179,33 @@ export default function Enquiry() {
                         </div>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                           {it.sizes?.length > 0 && (
-                            <select className={selCls} value={it.size} onChange={(e) => updateItem(it.uid, { size: e.target.value })} data-testid={`size-${it.uid}`}>
-                              {it.sizes.map((s) => <option key={s} value={s}>{s}</option>)}
-                            </select>
+                            <label className="block">
+                              <span className="text-[10px] font-bold text-ink2 uppercase tracking-wider mb-1 block">Size</span>
+                              <select className={selCls} value={it.size} onChange={(e) => updateItem(it.uid, { size: e.target.value })} data-testid={`size-${it.uid}`}>
+                                {it.sizes.map((s) => <option key={s} value={s}>{s}</option>)}
+                              </select>
+                            </label>
                           )}
                           {it.types?.length > 0 && (
-                            <select className={selCls} value={it.type} onChange={(e) => updateItem(it.uid, { type: e.target.value })} data-testid={`type-${it.uid}`}>
-                              {it.types.map((t) => <option key={t} value={t}>{t}</option>)}
-                            </select>
+                            <label className="block">
+                              <span className="text-[10px] font-bold text-ink2 uppercase tracking-wider mb-1 block">Type / Method</span>
+                              <select className={selCls} value={it.type} onChange={(e) => updateItem(it.uid, { type: e.target.value })} data-testid={`type-${it.uid}`}>
+                                {it.types.map((t) => <option key={t} value={t}>{t}</option>)}
+                              </select>
+                            </label>
                           )}
-                          <input className={selCls} placeholder="Quantity *" value={it.quantity} onChange={(e) => updateItem(it.uid, { quantity: e.target.value })} data-testid={`qty-${it.uid}`} />
+                          {it.moqs?.length > 0 && (
+                            <label className="block">
+                              <span className="text-[10px] font-bold text-ink2 uppercase tracking-wider mb-1 block">MOQ</span>
+                              <select className={selCls} value={it.moq} onChange={(e) => updateItem(it.uid, { moq: e.target.value })} data-testid={`moq-${it.uid}`}>
+                                {it.moqs.map((m) => <option key={m} value={m}>{m}</option>)}
+                              </select>
+                            </label>
+                          )}
+                          <label className="block">
+                            <span className="text-[10px] font-bold text-ink2 uppercase tracking-wider mb-1 block">Quantity *</span>
+                            <input className={selCls} placeholder="e.g. 500" value={it.quantity} onChange={(e) => updateItem(it.uid, { quantity: e.target.value })} data-testid={`qty-${it.uid}`} />
+                          </label>
                         </div>
                       </div>
                     ))}
@@ -194,6 +243,11 @@ export default function Enquiry() {
                   className="mt-8 w-full bg-leaf text-white py-5 rounded-2xl font-bold text-lg hover:bg-ink transition-colors disabled:opacity-60 flex items-center justify-center gap-3">
                   {submitting ? "Submitting..." : (<>Submit Enquiry <i className="fa-solid fa-paper-plane" /></>)}
                 </button>
+                <button type="button" onClick={sendWhatsApp} data-testid="enquiry-whatsapp"
+                  className="mt-3 w-full bg-[#25D366] text-white py-4 rounded-2xl font-bold text-base hover:bg-[#1da851] transition-colors flex items-center justify-center gap-3">
+                  <i className="fa-brands fa-whatsapp text-xl" /> Send list on WhatsApp
+                </button>
+                <p className="text-center text-xs text-ink2 mt-2">Prefer a chat? Send your product list straight to our team on WhatsApp.</p>
               </form>
             )}
           </div>
