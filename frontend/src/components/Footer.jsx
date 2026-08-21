@@ -26,15 +26,15 @@ export default function Footer() {
           <ul className="space-y-4 text-sm text-white/70">
             <li className="flex items-start gap-3">
               <i className="fa-solid fa-location-dot text-sunset mt-1" />
-              <span>{c.address_line1 || "Industrial Estate, Guindy,"}<br />{c.address_line2 || "Chennai, Tamil Nadu 600032"}</span>
+              <span>{c.address_line1 || "No 4, 38, Ganapathy Nagar 2nd St, Ekkatuthangal, Chennai, Tamil Nadu 600032"}{c.address_line2 ? <><br />{c.address_line2}</> : null}</span>
             </li>
             <li className="flex items-center gap-3">
               <i className="fa-solid fa-phone text-sunset" />
-              <a href={`tel:${c.phone_link || ""}`} className="hover:text-white transition-colors">{c.phone || "+91 98765 43210"}</a>
+              <a href={`tel:${c.phone_link || ""}`} className="hover:text-white transition-colors">{c.phone || "+91 98417 35178"}</a>
             </li>
             <li className="flex items-center gap-3">
               <i className="fa-solid fa-envelope text-sunset" />
-              <a href={`mailto:${c.email || ""}`} className="hover:text-white transition-colors">{c.email || "enquiry@excelpackaging.in"}</a>
+              <a href={`mailto:${c.email || ""}`} className="hover:text-white transition-colors">{c.email || "exlpackaging@gmail.com"}</a>
             </li>
           </ul>
         </div>

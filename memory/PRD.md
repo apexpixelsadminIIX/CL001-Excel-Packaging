@@ -34,3 +34,9 @@ Production-ready, fully responsive B2B marketing website for "Excel Packaging an
 - P0: Owner to paste real Google Apps Script webhook URL (Admin > Settings) to activate live Sheet sync; provide real contact phone/email/address (Admin > Contact) and real Instagram/YouTube links + post thumbnails (Admin > Social).
 - P1: Direct file-upload for images (currently URL-based); embed live Instagram/YouTube feeds via official widgets.
 - P2: Product detail pages; multi-image galleries; add/remove products & slides from Admin (currently edit-in-place).
+
+## Update — 2026-07 (Business contact details)
+- Real business address set (one line): "No 4, 38, Ganapathy Nagar 2nd St, Ekkatuthangal, Chennai, Tamil Nadu 600032".
+- Phone: +91 98417 35178 (link +919841735178). Email: exlpackaging@gmail.com.
+- Updated in backend seed (content_data.py), live MongoDB `site_content` doc (_id="site"), and fallback defaults in Footer.jsx & Enquiry.jsx.
+- Google Map embed on Enquiry auto-generates from the address fields — now points to the new location.

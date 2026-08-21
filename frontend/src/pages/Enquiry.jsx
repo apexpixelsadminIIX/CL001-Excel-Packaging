@@ -70,11 +70,11 @@ export default function Enquiry() {
   };
 
   const contactBlocks = [
-    { icon: "fa-phone", label: "Direct Line", value: c.phone || "+91 98765 43210" },
-    { icon: "fa-envelope", label: "Business Email", value: c.email || "enquiry@excelpackaging.in" },
-    { icon: "fa-location-dot", label: "Chennai Hub", value: `${c.address_line1 || "Industrial Estate, Guindy,"} ${c.address_line2 || "Chennai, TN 600032"}` },
+    { icon: "fa-phone", label: "Direct Line", value: c.phone || "+91 98417 35178" },
+    { icon: "fa-envelope", label: "Business Email", value: c.email || "exlpackaging@gmail.com" },
+    { icon: "fa-location-dot", label: "Chennai Hub", value: `${c.address_line1 || "No 4, 38, Ganapathy Nagar 2nd St, Ekkatuthangal, Chennai, Tamil Nadu 600032"} ${c.address_line2 || ""}`.trim() },
   ];
-  const mapAddress = `Excel Packaging and Taste Foods, ${c.address_line1 || "Industrial Estate, Guindy"}, ${c.address_line2 || "Chennai, Tamil Nadu 600032"}`;
+  const mapAddress = `Excel Packaging and Taste Foods, ${[c.address_line1 || "No 4, 38, Ganapathy Nagar 2nd St, Ekkatuthangal, Chennai, Tamil Nadu 600032", c.address_line2].filter(Boolean).join(", ")}`;
   const mapSrc = `https://www.google.com/maps?q=${encodeURIComponent(mapAddress)}&output=embed`;
   const faqLd = { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: FAQS.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })) };
 
