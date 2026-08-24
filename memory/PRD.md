@@ -69,3 +69,12 @@ Deployment files added:
 - DEPLOY_GUIDE.md: full step-by-step for Vercel/Netlify (frontend) + Render/Railway (backend) + MongoDB Atlas. Removed old DEPLOYMENT.md & DEPLOY_VERCEL_NETLIFY.md; cleaned CLIENT_HANDOFF.md.
 
 Verified: production `yarn build` succeeds (188 kB gz), 14 assets copied, built index.html clean of emergent/posthog; homepage renders with 0 broken images; backend /api/content 200.
+
+## Update — 2026-07 (Admin consolidation — single catalog source of truth)
+Bug: user reported admin "not updated with products/categories". Root cause: admin had 3 overlapping editors (legacy Categories + Products tabs + real Catalog Master). User chose option (a): consolidate.
+- Removed legacy "Categories" and "Products" admin tabs (AdminDashboard.jsx TABS + render blocks); removed unused BulkUpload/bulkAssign/CAT_LABELS.
+- Homepage "Featured Products" now derives from Master Catalog products with a `featured` flag (Home.jsx) instead of legacy `products`.
+- Added a per-product "Featured on homepage" toggle in Catalog (Master) editor + a live featured counter (warns when >4, since homepage caps at 4).
+- Removed legacy top-level `categories`/`products` from seed (content_data.py) and live DB; seeded 4 featured catalog products (Food Containers, Plates, Pet Bottles, Tissues) in catalog_seed.py + DB.
+- Verified by testing_agent (iteration_1.json): 25/25 backend tests, all frontend flows pass, draft->publish roundtrip works, no internal fields leaked. Backend regression suite added at /app/backend/tests/.
+- Known/optional (not blocking): homepage featured cap of 4 (now surfaced via counter); non-idempotent content seed (existing DB not auto-updated by seed changes — we update DB directly); one catalog product still uses an Unsplash URL.

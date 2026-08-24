@@ -64,34 +64,6 @@ DEFAULT_CONTENT = {
         "stat2_value": "Bulk", "stat2_label": "Fulfillment Ready",
         "established": "2019",
     },
-    "categories": [
-        {"id": "containers", "title": "Food Containers", "desc": "Microwavable PP and PET containers in all standard sizes.", "image": IMG["cat_containers"], "link": "/catalog?cat=plastic"},
-        {"id": "eco", "title": "Eco Range", "desc": "Compostable sugarcane products and wooden cutlery solutions.", "image": IMG["cat_eco"], "link": "/catalog?cat=eco"},
-        {"id": "foil", "title": "Foil Products", "desc": "Heat-retentive foil containers and premium kitchen foils.", "image": IMG["cat_foil"], "link": "/catalog?cat=foil"},
-        {"id": "clean", "title": "Cleaning & Hospitality", "desc": "Professional housekeeping and cleaning chemicals.", "image": IMG["cat_clean"], "link": "/cleaning", "highlight": True},
-    ],
-    "products": [
-        # ECO (priority 1)
-        {"id": "p-sugarcane", "name": "Sugarcane Bagasse Plates", "category": "eco", "category_label": "Eco-Friendly", "badge": "In Stock", "featured": True, "desc": "100% biodegradable and sturdy, moisture resistant. Available in 7, 9 and 12 inch sizes.", "image": IMG["sugarcane_plates"]},
-        {"id": "p-bagasse-box", "name": "Bagasse Clamshell Boxes", "category": "eco", "category_label": "Eco-Friendly", "badge": "Best Seller", "desc": "Compostable hinged meal boxes, leak-resistant and microwave safe for hot takeaway food.", "image": IMG["eco_box_green"]},
-        {"id": "p-bagasse-bowls", "name": "Bagasse Bowls & Trays", "category": "eco", "category_label": "Eco-Friendly", "badge": "In Stock", "desc": "Deep compostable bowls and compartment trays for curries, rice and multi-course meals.", "image": IMG["cat_eco"]},
-        {"id": "p-wooden-cutlery", "name": "Wooden Cutlery Sets", "category": "eco", "category_label": "Eco-Friendly", "badge": "Popular", "desc": "Smooth birch wood forks, spoons and knives. Splinter-free and fully compostable.", "image": IMG["wooden_cutlery"]},
-        # PLASTIC (priority 2)
-        {"id": "p-pp", "name": "PP Microwavable Containers", "category": "plastic", "category_label": "Plastic", "badge": "Bulk Supply", "featured": True, "desc": "High-quality PP containers, leak-proof and heat resistant up to 120°C with snap lids.", "image": IMG["pp_container"]},
-        {"id": "p-pet", "name": "PET Hinged Deli Boxes", "category": "plastic", "category_label": "Plastic", "badge": "In Stock", "desc": "Crystal-clear PET salad and deli boxes with tamper-evident hinged lids.", "image": IMG["pet_box"]},
-        {"id": "p-portion", "name": "Clear Portion Cups", "category": "plastic", "category_label": "Plastic", "badge": "Bulk Supply", "desc": "Stackable portion cups with lids for sauces, chutneys and dressings.", "image": IMG["cat_containers"]},
-        # PAPER (priority 3)
-        {"id": "p-kraft-box", "name": "Kraft Meal Boxes", "category": "paper", "category_label": "Paper", "badge": "In Stock", "featured": True, "desc": "Premium kraft paper boxes with grease-proof lining for fried snacks and meals.", "image": IMG["kraft_open"]},
-        {"id": "p-paper-cup", "name": "Ripple Paper Cups", "category": "paper", "category_label": "Paper", "badge": "Popular", "desc": "Double-wall ripple cups for hot beverages, 8oz to 16oz with matching lids.", "image": IMG["paper_cup"]},
-        {"id": "p-kraft-bags", "name": "Kraft Carry Bags", "category": "paper", "category_label": "Paper", "badge": "In Stock", "desc": "Twisted-handle kraft bags for takeaway and retail, multiple sizes available.", "image": IMG["kraft_bags"]},
-        {"id": "p-cups-lids", "name": "Takeaway Cups with Lids", "category": "paper", "category_label": "Paper", "badge": "Bulk Supply", "desc": "Coated paper cups with sip-through lids, ideal for cafes and cloud kitchens.", "image": IMG["cups_top"]},
-        # CORN STARCH / PLA (priority 4)
-        {"id": "p-pla-tray", "name": "PLA Compartment Trays", "category": "cornstarch", "category_label": "Corn Starch (PLA)", "badge": "Eco Alternative", "desc": "Corn-starch based compostable trays, a plant-based alternative to plastic for meal takeaway.", "image": IMG["pla_container"]},
-        {"id": "p-pla-cutlery", "name": "Corn Starch Cutlery", "category": "cornstarch", "category_label": "Corn Starch (PLA)", "badge": "Compostable", "desc": "Heat-tolerant CPLA cutlery that composts fully, sturdier than standard bioplastics.", "image": IMG["wooden_spoons"]},
-        # ALUMINIUM FOIL (priority 5)
-        {"id": "p-foil-container", "name": "Foil Take-away Containers", "category": "foil", "category_label": "Aluminum Foil", "badge": "B2B Only", "desc": "Rectangular foil containers with board lids for hot, heat-retentive takeaway meals.", "image": IMG["foil_tray"]},
-        {"id": "p-foil-roll", "name": "Aluminium Foil Rolls & Wrap", "category": "foil", "category_label": "Aluminum Foil", "badge": "Bulk Supply", "desc": "Extra-thick commercial-grade foil rolls and containers for maximum heat retention.", "image": IMG["cat_foil"]},
-    ],
     "catalog_filters": [
         {"id": "eco", "label": "Eco-Friendly"},
         {"id": "plastic", "label": "Plastic"},

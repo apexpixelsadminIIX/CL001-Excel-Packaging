@@ -1,0 +1,40 @@
+{
+  "summary": "Full-stack retest of the admin consolidation (legacy Categories/Products tabs removed) + homepage Featured Products wired to Master Catalog featured flag. Backend: created pytest suite (25 tests) covering health, auth/JWT, public content shape, internal-field stripping, featured flags, contact details, draft/publish/discard roundtrip, enquiries (create+persist+CSV), settings & Instagram endpoints — 25/25 passed. Frontend (Playwright, public URL): admin login -> dashboard OK; sidebar shows exactly the 8 expected tabs with no Categories/Products; Catalog (Master) shows 9 categories / 41 products with working 'Mark as featured on homepage' toggles; Save Draft -> unpublished badge -> Publish Live -> public homepage featured strip updated immediately (verified newly flagged 'Biryani Bucket' appeared, then reverted and republished to seed state); Contact tab shows new address/phone/email/WhatsApp; /catalog regression OK (9 categories, product cards); /enquiry Custom Branding -> Food Containers shows Type/Method + MOQ dropdowns and submission succeeded (visible in admin Enquiries). No console errors, no 500s.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "startup seed", "issue": "Content seed only runs when site_content doc is absent (`if not await db.site_content.find_one({_id: 'site'})`). Any future seed changes to catalog/featured flags will NOT reach an existing DB — this is exactly the class of bug the user originally reported ('admin not updated with products'). Consider a version-stamped seed/migration."},
+      {"endpoint": "POST /api/auth/login", "issue": "No brute-force lockout / rate limiting; unlimited wrong-password attempts return 401 (playbook item #4 not implemented). Auth uses JWT in localStorage rather than httpOnly cookies (documented design, but no CSRF/XSS mitigation)."},
+      {"endpoint": "CORS", "issue": "allow_credentials=True combined with default CORS_ORIGINS='*' fallback; verify explicit origins are set in the deployed env."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Home / Featured Products", "issues": ["Homepage featured strip is hard-capped at 4 items (Home.jsx slice(0,4)). Admin can mark unlimited products 'Featured on homepage' with no hint that only the first 4 render — flagging a 5th silently drops another product (observed: marking Biryani Bucket pushed Tissues out). Suggest showing a counter/limit warning in the Catalog editor."]},
+      {"screen": "E-Catalog / product images", "issues": ["Heavy image reuse across distinct products (one asset used by 11 products, another by 8, another by 5), so Food Containers / Biryani Bucket / Food Tray all show the same photo — looks like placeholder content.", "One catalog product still points at an external Unsplash URL (images.unsplash.com/photo-1769610712905...) despite the /assets migration."]},
+      {"screen": "Admin login", "issues": ["Email/password inputs and the Sign in button have no data-testid; the page heading text is also 'Sign in', so text-based selectors hit the heading. Add data-testid=login-email / login-password / login-submit."]}
+    ]
+  },
+  "test_report_links": ["/app/backend/tests/backend_test.py", "/app/backend/tests/conftest.py", "/app/test_reports/pytest/pytest_results.xml"],
+  "action_items": [
+    "Optional: add data-testid attributes to /admin/login inputs and submit button.",
+    "Optional: surface the 4-item featured limit in the Catalog (Master) editor (counter or disable beyond 4).",
+    "Optional: replace duplicated/placeholder product images and the remaining Unsplash URL with real /assets images.",
+    "Consider a versioned content seed/migration so future catalog seed edits propagate to an existing DB."
+  ],
+  "critical_code_review_comments": [
+    "server.py startup seeding is non-idempotent for content: existing 'site' docs never receive updated seed data — a migration/version key would prevent recurrences of the reported 'admin not updated' bug.",
+    "PUT /api/content accepts an arbitrary dict and replaces whole top-level keys with no Pydantic validation; a malformed catalog payload from the admin UI would be persisted as-is.",
+    "AdminDashboard.jsx is 609 lines and server.py 476 lines — both nearing the split threshold; catalog editor could be extracted into its own component."
+  ],
+  "updated_files": ["/app/backend/tests/backend_test.py", "/app/backend/tests/conftest.py"],
+  "success_rate": {"backend": "100% (25/25)", "frontend": "100% of tested flows"},
+  "seed_data_creation": "Created 2 test enquiries (TEST_QA Foods Pvt Ltd via API — deleted in teardown; TEST_QA UI Foods via UI — left in DB, safe to delete). Featured flags and draft state were reverted/republished to the original seed state (Food Containers, Plates, Pet Bottles, Tissues).",
+  "should_call_test_agent_after_fix": false,
+  "should_main_agent_self_test": true,
+  "test_credentials": "admin@excelpackaging.in / Excel@2019 (from /app/memory/test_credentials.md) — valid, login works",
+  "context_for_next_testing_agent": "Backend regression suite lives at /app/backend/tests/ (conftest.py + backend_test.py); run with `cd /app/backend && python -m pytest tests/ -v` (pytest.ini forces -n 2 --dist loadscope). Admin login has no testids: use page.locator('input').nth(0)/nth(1) and page.get_by_role('button', name='Sign in') — do NOT use get_by_text('Sign in') (matches the heading). Admin tabs: [data-testid=tab-<id>]; catalog featured toggles: [data-testid=cat-featured-<ci>-<pi>]; save=admin-save, publish=admin-publish, badge=unpublished-badge. Homepage featured strip caps at 4 items. One UI test enquiry 'TEST_QA UI Foods' remains in the enquiries collection.",
+  "rca_of_the_issue": "Original bug (admin showing stale products) is resolved: /api/content no longer exposes legacy 'categories'/'products' keys, admin has a single 'Catalog (Master)' editor, and the homepage featured strip derives from catalog product 'featured' flags — verified end-to-end via draft->publish. Residual risk: content seeding is skipped when a 'site' doc already exists, so future seed changes still won't reach an existing database."
+}

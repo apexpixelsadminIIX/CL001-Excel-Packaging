@@ -9,8 +9,6 @@ import { api, API, resolveImg, formatApiError } from "@/lib/api";
 const TABS = [
   { id: "enquiries", label: "Enquiries", icon: "fa-inbox" },
   { id: "hero", label: "Hero Carousel", icon: "fa-images" },
-  { id: "categories", label: "Categories", icon: "fa-grip" },
-  { id: "products", label: "Products", icon: "fa-box" },
   { id: "cleaning", label: "Cleaning", icon: "fa-spray-can-sparkles" },
   { id: "catalog", label: "Catalog (Master)", icon: "fa-layer-group" },
   { id: "social", label: "Social & Videos", icon: "fa-hashtag" },
@@ -19,7 +17,6 @@ const TABS = [
   { id: "settings", label: "Settings", icon: "fa-gear" },
 ];
 
-const CAT_LABELS = { eco: "Eco-Friendly", plastic: "Plastic", paper: "Paper", cornstarch: "Corn Starch (PLA)", foil: "Aluminum Foil" };
 const CLEAN_LABELS = { housekeeping: "Housekeeping", laundry: "Laundry Care", kitchen: "Kitchen Hygiene", sanitization: "Sanitization" };
 const selCls = "w-full bg-panel border border-line rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-leaf";
 
@@ -110,95 +107,6 @@ function SortableItem({ value, label, onRemove, removeTestid, children }) {
   );
 }
 
-function BulkUpload({ products, onAssign }) {
-  const [items, setItems] = useState([]);
-  const [busy, setBusy] = useState(false);
-  const [open, setOpen] = useState(false);
-
-  const onFiles = async (e) => {
-    const files = Array.from(e.target.files || []);
-    if (!files.length) return;
-    setBusy(true);
-    const uploaded = [];
-    for (const f of files) {
-      const fd = new FormData();
-      fd.append("file", f);
-      try {
-        const { data } = await api.post("/admin/upload", fd, { headers: { "Content-Type": "multipart/form-data" } });
-        uploaded.push({ url: data.url, name: f.name, target: "" });
-      } catch {
-        toast.error(`Failed: ${f.name}`);
-      }
-    }
-    setItems((prev) => [...prev, ...uploaded]);
-    setBusy(false);
-    e.target.value = "";
-  };
-
-  const setTarget = (idx, pid) => setItems((prev) => prev.map((it, i) => (i === idx ? { ...it, target: pid } : it)));
-
-  const autoFillEmpties = () => {
-    const empties = products.filter((p) => !p.image).map((p) => p.id);
-    setItems((prev) => {
-      let k = 0;
-      return prev.map((it) => (it.target ? it : (k < empties.length ? { ...it, target: empties[k++] } : it)));
-    });
-    toast.message("Assigned uploads to products missing images. Review and Apply.");
-  };
-
-  const apply = () => {
-    const assigns = items.filter((it) => it.target);
-    if (!assigns.length) return toast.error("Pick a product for at least one image.");
-    onAssign(assigns);
-    setItems([]);
-    setOpen(false);
-    toast.success(`Matched ${assigns.length} image(s). Remember to Save & Publish.`);
-  };
-
-  return (
-    <div className="bg-panel border border-line rounded-2xl p-5">
-      <div className="flex items-center justify-between">
-        <div>
-          <h3 className="font-bold text-ink flex items-center gap-2"><i className="fa-solid fa-layer-group text-leaf" /> Bulk Image Upload</h3>
-          <p className="text-xs text-ink2 mt-1">Drop several photos at once, then match each to a product.</p>
-        </div>
-        <button data-testid="bulk-toggle" onClick={() => setOpen((o) => !o)} className="text-sm font-bold text-leaf">{open ? "Hide" : "Open"}</button>
-      </div>
-
-      {open && (
-        <div className="mt-4 space-y-4" data-testid="bulk-panel">
-          <label className={`block border-2 border-dashed border-line rounded-2xl p-6 text-center cursor-pointer hover:border-leaf transition-colors ${busy ? "opacity-60 pointer-events-none" : ""}`}>
-            <i className="fa-solid fa-cloud-arrow-up text-2xl text-leaf mb-2" />
-            <p className="text-sm font-bold text-ink">{busy ? "Uploading…" : "Click to select multiple images"}</p>
-            <input type="file" accept="image/*" multiple className="hidden" onChange={onFiles} data-testid="bulk-input" />
-          </label>
-
-          {items.length > 0 && (
-            <>
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-bold text-ink">{items.length} uploaded</span>
-                <button onClick={autoFillEmpties} className="text-xs font-bold text-sunset" data-testid="bulk-autofill">Auto-match to products missing images</button>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {items.map((it, i) => (
-                  <div key={i} className="flex items-center gap-3 bg-surf border border-line rounded-xl p-3">
-                    <img src={resolveImg(it.url)} alt="" className="w-14 h-14 rounded-lg object-cover shrink-0" />
-                    <select data-testid={`bulk-target-${i}`} className="flex-1 bg-panel border border-line rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-leaf" value={it.target} onChange={(e) => setTarget(i, e.target.value)}>
-                      <option value="">— assign to product —</option>
-                      {products.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-                    </select>
-                  </div>
-                ))}
-              </div>
-              <button data-testid="bulk-apply" onClick={apply} className="bg-leaf text-white px-6 py-3 rounded-full text-sm font-bold hover:bg-ink transition-colors">Match Images</button>
-            </>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
-
 export default function AdminDashboard() {
   const { admin, ready, logout } = useAuth();
   const nav = useNavigate();
@@ -243,18 +151,13 @@ export default function AdminDashboard() {
       arr[idx] = { ...arr[idx], category: catId, category_label: labels[catId] };
       return { ...c, [key]: arr };
     });
-  const bulkAssign = (assigns) =>
-    setContent((c) => {
-      const map = Object.fromEntries(assigns.map((a) => [a.target, a.url]));
-      return { ...c, products: c.products.map((p) => (map[p.id] ? { ...p, image: map[p.id] } : p)) };
-    });
 
   // ---- New master catalog editors ----
   const updCat = (ci, field, val) => setContent((c) => { const cat = [...c.catalog]; cat[ci] = { ...cat[ci], [field]: val }; return { ...c, catalog: cat }; });
   const updProd = (ci, pi, field, val) => setContent((c) => { const cat = [...c.catalog]; const ps = [...cat[ci].products]; ps[pi] = { ...ps[pi], [field]: val }; cat[ci] = { ...cat[ci], products: ps }; return { ...c, catalog: cat }; });
   const addCat = () => setContent((c) => ({ ...c, catalog: [...(c.catalog || []), { id: "cat-" + Date.now(), name: "New Category", desc: "", image: "", products: [] }] }));
   const rmCat = (ci) => setContent((c) => ({ ...c, catalog: c.catalog.filter((_, i) => i !== ci) }));
-  const addProd = (ci) => setContent((c) => { const cat = [...c.catalog]; cat[ci] = { ...cat[ci], products: [...cat[ci].products, { id: "p-" + Date.now(), name: "New Product", sub_category: "New", sizes: [], types: [], moq: [], image: cat[ci].image, images: [], desc: "", badge: "", hsn: "", base_price: "", gst: "", total_price: "", notes: "" }] }; return { ...c, catalog: cat }; });
+  const addProd = (ci) => setContent((c) => { const cat = [...c.catalog]; cat[ci] = { ...cat[ci], products: [...cat[ci].products, { id: "p-" + Date.now(), name: "New Product", sub_category: "New", sizes: [], types: [], moq: [], featured: false, image: cat[ci].image, images: [], desc: "", badge: "", hsn: "", base_price: "", gst: "", total_price: "", notes: "" }] }; return { ...c, catalog: cat }; });
   const rmProd = (ci, pi) => setContent((c) => { const cat = [...c.catalog]; cat[ci] = { ...cat[ci], products: cat[ci].products.filter((_, i) => i !== pi) }; return { ...c, catalog: cat }; });
   const csvToArr = (s) => s.split(",").map((x) => x.trim()).filter(Boolean);
 
@@ -474,67 +377,6 @@ export default function AdminDashboard() {
             </section>
           )}
 
-          {tab === "categories" && (
-            <section className="space-y-4" data-testid="admin-categories">
-              <h2 className="text-2xl font-extrabold text-ink mb-1">Category Cards</h2>
-              <p className="text-xs text-ink2 flex items-center gap-2 mb-2"><i className="fa-solid fa-grip-vertical" /> Drag the handle to reorder the Home page category cards.</p>
-              <Reorder.Group axis="y" values={content.categories} onReorder={(vals) => update("categories", vals)} className="space-y-4">
-                {content.categories?.map((c, i) => (
-                  <SortableItem key={c.id} value={c} label={c.title}>
-                    <ImgField label="Image" value={c.image} onChange={(v) => updateItem("categories", i, "image", v)} testid={`cat-img-${i}`} />
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      <Txt label="Title" value={c.title} onChange={(v) => updateItem("categories", i, "title", v)} />
-                      <Txt label="Description" value={c.desc} onChange={(v) => updateItem("categories", i, "desc", v)} />
-                    </div>
-                  </SortableItem>
-                ))}
-              </Reorder.Group>
-            </section>
-          )}
-
-          {tab === "products" && (
-            <section className="space-y-4" data-testid="admin-products">
-              <div className="flex items-center justify-between mb-2">
-                <h2 className="text-2xl font-extrabold text-ink">Products ({content.products?.length})</h2>
-                <button
-                  data-testid="add-product"
-                  onClick={() => addItem("products", { name: "New Product", category: "eco", category_label: CAT_LABELS.eco, badge: "In Stock", featured: false, desc: "", image: "" })}
-                  className="bg-leaf text-white px-5 py-2.5 rounded-full text-sm font-bold hover:bg-ink transition-colors"
-                >
-                  <i className="fa-solid fa-plus mr-2" />Add Product
-                </button>
-              </div>
-              <BulkUpload products={content.products || []} onAssign={bulkAssign} />
-              <p className="text-xs text-ink2 flex items-center gap-2"><i className="fa-solid fa-grip-vertical" /> Drag the handle to reorder. Featured products appear first on the Home page and Catalog.</p>
-              <Reorder.Group axis="y" values={content.products} onReorder={(vals) => update("products", vals)} className="space-y-4">
-                {content.products?.map((p, i) => (
-                  <SortableItem key={p.id} value={p} label={p.category_label} onRemove={() => removeItem("products", i)} removeTestid={`remove-product-${i}`}>
-                    <ImgField label={p.name} value={p.image} onChange={(v) => updateItem("products", i, "image", v)} testid={`prod-img-${i}`} />
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                      <Txt label="Name" value={p.name} onChange={(v) => updateItem("products", i, "name", v)} />
-                      <Txt label="Badge" value={p.badge} onChange={(v) => updateItem("products", i, "badge", v)} />
-                      <div>
-                        <label className="text-[11px] font-bold text-ink2 uppercase tracking-wide mb-1 block">Category</label>
-                        <select data-testid={`prod-cat-${i}`} className={selCls} value={p.category} onChange={(e) => setCategory("products", i, e.target.value, CAT_LABELS)}>
-                          {Object.entries(CAT_LABELS).map(([id, label]) => <option key={id} value={id}>{label}</option>)}
-                        </select>
-                      </div>
-                      <div className="md:col-span-3"><Txt label="Description" area value={p.desc} onChange={(v) => updateItem("products", i, "desc", v)} /></div>
-                    </div>
-                    <button
-                      type="button"
-                      data-testid={`featured-toggle-${i}`}
-                      onClick={() => updateItem("products", i, "featured", !p.featured)}
-                      className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold transition-colors ${p.featured ? "bg-sun text-ink" : "bg-panel text-ink2 hover:text-ink"}`}
-                    >
-                      <i className={`fa-${p.featured ? "solid" : "regular"} fa-star`} /> {p.featured ? "Featured" : "Mark as Featured"}
-                    </button>
-                  </SortableItem>
-                ))}
-              </Reorder.Group>
-            </section>
-          )}
-
           {tab === "cleaning" && (
             <section className="space-y-4" data-testid="admin-cleaning">
               <div className="flex items-center justify-between mb-2">
@@ -611,6 +453,18 @@ export default function AdminDashboard() {
                 <button data-testid="add-category" onClick={addCat} className="bg-leaf text-white px-5 py-2.5 rounded-full text-sm font-bold hover:bg-ink transition-colors"><i className="fa-solid fa-plus mr-2" />Category</button>
               </div>
               <p className="text-xs text-ink2">Size / Type / MOQ are comma-separated. Price, HSN &amp; GST are <b>internal only</b> — never shown on the public site or enquiry form.</p>
+              {(() => {
+                const featuredCount = (content.catalog || []).flatMap((c) => c.products || []).filter((p) => p.featured).length;
+                return (
+                  <p className="text-xs font-semibold flex items-center gap-2" data-testid="featured-counter">
+                    <i className="fa-solid fa-star text-sun" />
+                    <span className={featuredCount > 4 ? "text-sunset" : "text-ink2"}>
+                      {featuredCount} product{featuredCount === 1 ? "" : "s"} marked featured — the homepage shows the first 4.
+                      {featuredCount > 4 && " Extra ones won't appear until you unfeature some."}
+                    </span>
+                  </p>
+                );
+              })()}
               {(content.catalog || []).map((cat, ci) => (
                 <div key={cat.id} className="bg-surf border border-line rounded-2xl p-5 space-y-3" data-testid={`cat-${ci}`}>
                   <div className="flex items-center justify-between">
@@ -637,6 +491,14 @@ export default function AdminDashboard() {
                         <Txt label="Sizes (comma-separated)" value={(p.sizes || []).join(", ")} onChange={(v) => updProd(ci, pi, "sizes", csvToArr(v))} />
                         <Txt label="Types (comma-separated)" value={(p.types || []).join(", ")} onChange={(v) => updProd(ci, pi, "types", csvToArr(v))} />
                         <Txt label="MOQ / Qty options (comma-separated)" value={(p.moq || []).join(", ")} onChange={(v) => updProd(ci, pi, "moq", csvToArr(v))} />
+                        <button
+                          type="button"
+                          data-testid={`cat-featured-${ci}-${pi}`}
+                          onClick={() => updProd(ci, pi, "featured", !p.featured)}
+                          className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold transition-colors ${p.featured ? "bg-sun text-ink" : "bg-panel text-ink2 hover:text-ink"}`}
+                        >
+                          <i className={`fa-${p.featured ? "solid" : "regular"} fa-star`} /> {p.featured ? "Featured on homepage" : "Mark as featured on homepage"}
+                        </button>
                         <div className="mt-2 p-3 rounded-lg bg-ink/5 border border-line">
                           <p className="text-[10px] font-bold text-sunset uppercase tracking-widest mb-2"><i className="fa-solid fa-lock mr-1" />Internal only — never public</p>
                           <div className="grid grid-cols-2 md:grid-cols-4 gap-2">

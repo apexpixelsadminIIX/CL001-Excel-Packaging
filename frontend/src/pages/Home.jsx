@@ -6,7 +6,7 @@ import HeroCarousel from "@/components/HeroCarousel";
 import Marquee from "@/components/Marquee";
 import SocialCarousel from "@/components/SocialCarousel";
 import { Reveal } from "@/components/Reveal";
-import { useContent, sortByPriority, useInstagramFeed } from "@/hooks/useContent";
+import { useContent, useInstagramFeed } from "@/hooks/useContent";
 import { resolveImg } from "@/lib/api";
 import ProductCard from "@/components/ProductCard";
 import Seo from "@/components/Seo";
@@ -29,13 +29,17 @@ export default function Home() {
         image: c.image, link: c.id === "eliteclean" ? "/cleaning" : `/catalog`,
         highlight: c.id === "eliteclean",
       }))
-    : (data?.categories || []);
+    : [];
   const testimonials = data?.testimonials || [];
   const manualSocial = data?.social_posts || [];
   const igEnabled = !!data?.instagram_enabled;
   const { data: igFeed } = useInstagramFeed(igEnabled);
   const social = igEnabled && igFeed && igFeed.length > 0 ? igFeed : manualSocial;
-  const featured = sortByPriority((data?.products || []).filter((p) => p.featured)).slice(0, 4);
+  const featured = catalog
+    .filter((cat) => cat.id !== "eliteclean")
+    .flatMap((cat) => (cat.products || []).map((p) => ({ ...p, category_label: cat.name })))
+    .filter((p) => p.featured)
+    .slice(0, 4);
 
   const c = data?.contact || {};
   const businessLd = {
