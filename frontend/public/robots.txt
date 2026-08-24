@@ -3,4 +3,4 @@ Allow: /
 Disallow: /admin
 Disallow: /admin/login
 
-Sitemap: https://excel-staging-site.preview.emergentagent.com/sitemap.xml
+Sitemap: https://YOUR-DOMAIN.com/sitemap.xml

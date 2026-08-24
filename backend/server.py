@@ -19,7 +19,6 @@ import logging
 import bcrypt
 import jwt
 import httpx
-import requests
 
 from content_data import DEFAULT_CONTENT, PRIORITY
 
@@ -47,7 +46,7 @@ api = APIRouter(prefix="/api")
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("excel")
 
-from storage import init_storage, save_bytes, read_bytes, MIME_TYPES, BACKEND as STORAGE_BACKEND
+from storage import init_storage, save_bytes, read_bytes, MIME_TYPES
 
 
 # ---------- Auth helpers ----------

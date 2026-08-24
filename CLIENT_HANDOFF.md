@@ -26,7 +26,7 @@ A production-ready, fully responsive B2B marketing website + lightweight CMS for
 - **Frontend**: React 19 (Create React App / craco), Tailwind CSS, framer-motion (animations), Lenis (smooth scroll), react-helmet-async (SEO). Talks to the backend via `REACT_APP_BACKEND_URL`.
 - **Backend**: FastAPI (Python). All routes are prefixed with `/api`. JWT admin auth.
 - **Database**: MongoDB. Content, enquiries, admin user, uploaded-file records, Instagram cache.
-- **File/image storage**: portable — local filesystem by default (`STORAGE_BACKEND=local`), Emergent object storage optional.
+- **File/image storage**: local filesystem — uploads saved to `UPLOAD_DIR` and served via `/api/files` (point at a persistent disk in production).
 
 **Data flow**: All site content lives in MongoDB and is edited via the admin. The frontend reads published content from `/api/content`. The admin edits a private **Draft** and clicks **Publish** to push changes live.
 
@@ -39,7 +39,7 @@ A production-ready, fully responsive B2B marketing website + lightweight CMS for
 ├── backend/
 │   ├── server.py          # FastAPI app: auth, content (draft/live), enquiries, uploads, Instagram, settings
 │   ├── content_data.py    # DEFAULT seed content (products, categories, hero, social, contact…)
-│   ├── storage.py         # Portable storage (local filesystem / Emergent)
+│   ├── storage.py         # Local filesystem storage for uploads
 │   ├── requirements.txt
 │   ├── .env               # Backend config (see section 5)
 │   └── .env.example
@@ -84,9 +84,7 @@ CORS_ORIGINS="*"                          # set to your frontend URL in producti
 JWT_SECRET="<64-char random hex>"         # CHANGE for production
 ADMIN_EMAIL="admin@excelpackaging.in"     # CHANGE
 ADMIN_PASSWORD="Excel@2019"               # CHANGE
-STORAGE_BACKEND="local"                   # "local" (portable) or "emergent"
 UPLOAD_DIR="./uploads"                    # local storage folder (needs a persistent disk)
-EMERGENT_LLM_KEY=""                       # only if STORAGE_BACKEND="emergent"
 INSTAGRAM_API_VERSION="v23.0"             # optional; Instagram Graph API version
 ```
 
@@ -193,13 +191,10 @@ The admin user and all default content self-seed on first backend startup.
 
 ## 11. Hosting the final website
 
-The site is portable and can be hosted anywhere. Two paths:
+The site is a standard full-stack app and can be hosted anywhere:
 
-### Option A — Emergent (simplest, recommended)
-One-click deploy with managed database, storage, and custom domain. No code changes. (Use the Deploy option in the Emergent platform.)
-
-### Option B — Self-host (Vercel/Netlify + Railway/Render + MongoDB Atlas)
-See **DEPLOYMENT.md** for full steps. Summary:
+### Vercel/Netlify (frontend) + Render/Railway (backend) + MongoDB Atlas (database)
+See **DEPLOY_GUIDE.md** for full step-by-step instructions. Summary:
 - **Database**: create a MongoDB Atlas cluster → put its URI in `MONGO_URL`.
 - **Backend**: deploy `backend/` on Railway/Render/Fly/VPS running `uvicorn server:app --host 0.0.0.0 --port 8001`. Set all `backend/.env` vars. Attach a **persistent disk** at `UPLOAD_DIR` (for image uploads). Set `CORS_ORIGINS` to your frontend URL.
 - **Frontend**: set `REACT_APP_BACKEND_URL` to the backend URL, run `yarn build`, deploy the `build/` folder. On Netlify add SPA redirect `/* /index.html 200`.

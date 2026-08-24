@@ -1,0 +1,9 @@
+[build]
+  command = "yarn build"
+  publish = "build"
+
+# SPA fallback so React Router deep links (e.g. /catalog, /enquiry) work.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

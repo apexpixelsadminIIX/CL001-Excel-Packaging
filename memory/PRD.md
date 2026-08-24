@@ -49,3 +49,23 @@ Production-ready, fully responsive B2B marketing website for "Excel Packaging an
 
 ## Update — 2026-07 (Floating WhatsApp button)
 - Added persistent floating WhatsApp button (components/WhatsAppFab.jsx) rendered globally in App.js. Uses contact.whatsapp number, hidden on /admin routes, pulse animation, data-testid="floating-whatsapp".
+
+## Update — 2026-07 (Emergent de-branding + Vercel/Netlify deploy setup)
+De-branding (zero Emergent traces in the shipped app):
+- Removed Emergent loader + PostHog analytics from public/index.html; added commented GA4 placeholder.
+- Downloaded the 14 seed images off Emergent CDN into frontend/public/assets/ and rewrote all refs (content_data.py, catalog_seed.py, Home.jsx, Seo.jsx) + live DB to /assets/*.
+- Seo.jsx now builds absolute OG image from window origin (no hardcoded domain).
+- sitemap.xml / robots.txt use placeholder https://YOUR-DOMAIN.com (find-and-replace on go-live).
+- storage.py simplified to local-only; removed unused `requests` import + STORAGE_BACKEND import in server.py.
+- requirements.txt: removed emergentintegrations + emergent-hosted litellm wheel (would break pip install on Render/Railway).
+- package.json/craco: removed @emergentbase/visual-edits (would break yarn install off-platform).
+- Cleaned backend/.env.example + .env (dropped EMERGENT_LLM_KEY/STORAGE_BACKEND); cleaned testIds comments/keys.
+- .gitignore: excluded .emergent/ and .gitconfig (platform files, kept locally, not shipped); added !.env.example exceptions.
+- Note: .emergent/ and .gitconfig are git-tracked platform files; never part of the deployed build (Vercel builds frontend/, Render runs backend/). User can `git rm -r --cached .emergent .gitconfig` in their own clone to drop them.
+
+Deployment files added:
+- frontend/vercel.json, netlify.toml, public/_redirects (SPA fallback), .env.example.
+- backend/Procfile, render.yaml, runtime.txt (python-3.11.16), .env.example.
+- DEPLOY_GUIDE.md: full step-by-step for Vercel/Netlify (frontend) + Render/Railway (backend) + MongoDB Atlas. Removed old DEPLOYMENT.md & DEPLOY_VERCEL_NETLIFY.md; cleaned CLIENT_HANDOFF.md.
+
+Verified: production `yarn build` succeeds (188 kB gz), 14 assets copied, built index.html clean of emergent/posthog; homepage renders with 0 broken images; backend /api/content 200.

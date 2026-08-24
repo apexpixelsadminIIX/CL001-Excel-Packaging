@@ -42,7 +42,7 @@ export default function Home() {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
     name: "Excel Packaging and Taste Foods",
-    image: "https://static.prod-images.emergentagent.com/jobs/27c2a22b-2eb8-4581-be09-f7ea1e7181d7/images/759ad57b24c38f656bc4edf16f9c437a8a614e4d9a349effd643f309d034608a.jpeg",
+    image: "/assets/759ad57b24c38f65.jpeg",
     description: "Chennai-based B2B supplier of food-grade packaging, eco-friendly disposables, aluminium foil products, and cleaning & hospitality chemicals.",
     url: typeof window !== "undefined" ? window.location.origin : "",
     telephone: c.phone || "+91 98765 43210",
