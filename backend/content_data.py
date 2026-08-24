@@ -56,8 +56,8 @@ DEFAULT_CONTENT = {
          "cta_label": "Get a Quote", "cta_link": "/enquiry"},
     ],
     "story": {
-        "eyebrow": "Since 2019",
-        "heading": "Partnering with Chennai's Food Industry",
+        "eyebrow": "Our Journey",
+        "heading": "From Chennai to Kitchens Across India",
         "body": "Operating since 2019, Excel Packaging and Taste Foods has become a cornerstone for food service businesses in Chennai. We specialise in food-grade packaging that bridges the gap between hygiene and aesthetic presentation.",
         "image": IMG["warehouse"],
         "stat1_value": "100%", "stat1_label": "Food Grade Materials",

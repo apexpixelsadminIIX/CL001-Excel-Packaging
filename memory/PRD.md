@@ -78,3 +78,7 @@ Bug: user reported admin "not updated with products/categories". Root cause: adm
 - Removed legacy top-level `categories`/`products` from seed (content_data.py) and live DB; seeded 4 featured catalog products (Food Containers, Plates, Pet Bottles, Tissues) in catalog_seed.py + DB.
 - Verified by testing_agent (iteration_1.json): 25/25 backend tests, all frontend flows pass, draft->publish roundtrip works, no internal fields leaked. Backend regression suite added at /app/backend/tests/.
 - Known/optional (not blocking): homepage featured cap of 4 (now surfaced via counter); non-idempotent content seed (existing DB not auto-updated by seed changes — we update DB directly); one catalog product still uses an Unsplash URL.
+
+## Update — 2026-07 (Homepage story refresh)
+- Story eyebrow "Since 2019" -> "Our Journey"; heading "Partnering with Chennai's Food Industry" -> "From Chennai to Kitchens Across India" (pan-India positioning). Body/stats/established kept as-is.
+- Home.jsx story eyebrow was hardcoded — now reads story.eyebrow (CMS-editable), fallback "Our Journey". Updated seed (content_data.py) + live DB.

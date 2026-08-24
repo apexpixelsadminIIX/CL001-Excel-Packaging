@@ -98,7 +98,7 @@ export default function Home() {
 
           <div>
             <Reveal>
-              <p className="text-leaf font-bold tracking-[0.2em] uppercase mb-5 text-sm">Since 2019</p>
+              <p className="text-leaf font-bold tracking-[0.2em] uppercase mb-5 text-sm">{story.eyebrow || "Our Journey"}</p>
               <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-ink mb-7 leading-[1.02] tracking-tight">
                 {story.heading}
               </h2>
