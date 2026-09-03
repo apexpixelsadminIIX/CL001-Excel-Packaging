@@ -1,0 +1,31 @@
+{
+  "summary": "Frontend-only re-test of the hero carousel image-loading fix + light regression. The preload fix WORKS technically (no partially-decoded/broken images in the DOM at any point), but the user's reported 'one image loading half only' is NOT a loading bug — the source asset for hero slide 2 (/assets/759ad57b24c38f65.jpeg, key hero_eco) is itself defective: its left ~33% (419 of 1264 px) is a flat blank green band. So the visual half-image is still present on the live homepage. Regression checks (homepage, catalog, admin login/sidebar) all passed.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "HeroCarousel slide 2 asset (hero_eco)", "issue": "Source image /assets/759ad57b24c38f65.jpeg is 1264x848 with the left 419px (~33%) a solid flat pale-green blank band (verified pixel-scan + direct file view + direct URL render). With object-cover on a 1920px viewport this renders as a large empty block on the left of the hero, i.e. the 'half image' the user reported. Preloading cannot fix it.", "selector": "[data-testid=hero-carousel] img", "priority": "HIGH"}
+    ],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Homepage hero slide 2 (Eco-Friendly Disposables Range)", "issues": ["Left third of the hero is a flat empty green area behind the headline; visually reads as a broken/half-loaded image. Replace the asset with a full-bleed 16:9 image, or crop the blank band and/or use object-position right as a stopgap."]}
+    ]
+  },
+  "test_report_links": ["/app/test_reports/iteration_2.json"],
+  "action_items": [
+    "Replace /assets/759ad57b24c38f65.jpeg (content_data.py IMG['hero_eco']) with a non-defective full-frame image, or crop off the left 419px blank band. Also update the value stored in Mongo site_content if it was persisted/published.",
+    "Note: this asset is also referenced from Home.jsx and Seo.jsx (og:image candidate) — fix in one place (IMG map) and verify all usages.",
+    "No code change needed in HeroCarousel.jsx — preload + eager/async decoding verified working."
+  ],
+  "critical_code_review_comments": [
+    "HeroCarousel preload effect creates new Image() per slide on every `slides` identity change; harmless but could be keyed on a stable slide-id list to avoid refetch churn on parent re-renders.",
+    "AnimatePresence mode='sync' briefly mounts a second <img> during the 1s crossfade; that new element momentarily reports complete=false/naturalWidth=0 while at opacity 0. Not user visible, but if a truly cold image is ever added it would flash. Consider rendering both current+next layers persistently instead of remount."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "not tested (skipped per request)", "frontend": "6/7 checks passed (~86%) — only the defective slide-2 asset fails"},
+  "seed_data_creation": "none",
+  "should_call_test_agent_after_fix": false,
+  "should_main_agent_self_test": true,
+  "test_credentials": "admin@excelpackaging.in / Excel@2019 — login verified working, redirects to /admin",
+  "context_for_next_testing_agent": "Verified: (1) hero-carousel img complete=true & naturalWidth=1264 on all 3 slides via hero-next and hero-dot-0/1/2; (2) 88 samples over ~22s of auto-advance -> 0 occurrences of a visible (opacity>0.5) incomplete image; (3) homepage: 17 images, 0 broken; hero-cta, featured-section (9 items incl. Food Containers/Plates/Pet Bottles/M Fold Tissues), floating-whatsapp all visible; (4) /catalog: 8 category filter chips + product cards render, 45 images, the 22 initially-incomplete ones are loading='lazy' below the fold and all complete after scrolling, zero >=400 asset responses; (5) /admin/login with seeded admin -> /admin dashboard, sidebar = Enquiries, Hero Carousel, Cleaning, Catalog (Master), Social & Videos, Instagram Sync, Contact, Settings — NO standalone Categories/Products tabs (consolidation intact), no console errors besides a benign 'No available adapters' warning. Only remaining defect is the hero_eco source asset itself. CMS image upload was NOT tested (intentionally disabled in preview).",
+  "rca_of_the_issue": "User's 'image loading half only' was misdiagnosed as a decode/loading race. Pixel scan of all 14 bundled assets (PIL, flat-column detection) shows only 759ad57b24c38f65.jpeg has a large uniform blank region: left 419/1264 px (33%). Direct navigation to the asset URL and viewing the file on disk both show the blank left third, proving the file content is defective (likely an incompletely generated image), not a transfer/decode issue. Fix = replace/crop the asset."
+}

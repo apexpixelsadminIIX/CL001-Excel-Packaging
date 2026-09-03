@@ -10,6 +10,17 @@ export default function HeroCarousel({ slides = [] }) {
   const go = useCallback((i) => setIndex((i + count) % count), [count]);
   const next = useCallback(() => setIndex((p) => (p + 1) % count), [count]);
 
+  // Preload every slide image up-front so switching never shows a half-painted image.
+  useEffect(() => {
+    slides.forEach((s) => {
+      if (s?.image) {
+        const img = new Image();
+        img.decoding = "async";
+        img.src = resolveImg(s.image);
+      }
+    });
+  }, [slides]);
+
   useEffect(() => {
     if (count <= 1) return;
     const t = setInterval(next, 6000);
@@ -34,6 +45,8 @@ export default function HeroCarousel({ slides = [] }) {
             src={resolveImg(slide.image)}
             alt={slide.title_lead + " " + slide.title_accent}
             className="w-full h-full object-cover"
+            loading="eager"
+            decoding="async"
             initial={{ scale: 1.12 }}
             animate={{ scale: 1 }}
             transition={{ duration: 7, ease: "linear" }}

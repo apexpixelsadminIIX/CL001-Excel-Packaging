@@ -1,158 +1,158 @@
 # Deployment Guide — Excel Packaging & Taste Foods
 
-This is a full-stack app, so it deploys in **two parts**:
+Your site has three moving parts:
 
-1. **Frontend** (React) → **Vercel _or_ Netlify** (static hosting)
-2. **Backend** (FastAPI) + **Database** (MongoDB) → **Render _or_ Railway** + **MongoDB Atlas**
+1. **Frontend** (React) — static site
+2. **Backend** (FastAPI) — the API
+3. **MongoDB** (database) + **Object storage** (for images you upload in the CMS)
 
-> Vercel/Netlify only serve static files — they cannot run the Python API or the
-> database. That is why the backend + DB live on Render/Railway + Atlas.
+Vercel/Netlify can only host the **frontend**. The backend + database run elsewhere.
 
 ```
-Browser ──► Vercel/Netlify (React site)
-                 │  calls  ${REACT_APP_BACKEND_URL}/api/...
-                 ▼
-        Render/Railway (FastAPI)  ──►  MongoDB Atlas
+Browser ─► Netlify/Vercel (React) ─► Railway (FastAPI + MongoDB) ─► Cloudflare R2 (uploaded images)
 ```
 
 ---
 
-## Part 1 — Database: MongoDB Atlas (free)
+# ⭐ Recommended path (least friction)
 
-1. Create a free account at https://www.mongodb.com/atlas and create a **free M0 cluster**.
-2. **Database Access** → add a database user (username + password).
-3. **Network Access** → Add IP `0.0.0.0/0` (allow from anywhere) so your backend host can connect.
-4. **Connect → Drivers** → copy the connection string, e.g.:
-   `mongodb+srv://USER:PASSWORD@cluster0.xxxxx.mongodb.net/?retryWrites=true&w=majority`
-5. Keep this string — it is your `MONGO_URL`.
+**Frontend → Netlify** · **Backend + MongoDB → Railway** · **Uploaded images → Cloudflare R2**
 
-The database and collections are created automatically on first run. To load the
-starter catalog/content, see **"Seeding content"** at the bottom.
+This avoids MongoDB Atlas entirely — Railway gives you a MongoDB database with one click.
 
----
+## Step 1 — Push the code to GitHub
+Use the **"Save to GitHub"** button in the Emergent chat. Everything below reads from that repo.
 
-## Part 2 — Backend: FastAPI
+## Step 2 — Object storage: Cloudflare R2 (free, ~5 min)
+CMS image uploads need durable storage or they vanish on redeploy. R2 is free (10 GB, no egress fees).
 
-The backend lives in `/backend`. It needs these environment variables:
+1. Sign up at https://dash.cloudflare.com → open **R2** (left sidebar) → enable it (may ask for a card, but the 10 GB tier is free).
+2. **Create bucket** → name it e.g. `excel-uploads` → Create.
+3. Back on the R2 overview page, copy your **S3 API endpoint** — looks like
+   `https://<ACCOUNT_ID>.r2.cloudflarestorage.com`.
+4. **Manage R2 API Tokens** → **Create API Token** → permission **Object Read & Write** →
+   **Create**. Copy the **Access Key ID** and **Secret Access Key** (shown once!).
 
-| Variable | Example | Notes |
-|---|---|---|
-| `MONGO_URL` | `mongodb+srv://...` | From Atlas (Part 1) |
-| `DB_NAME` | `excel_packaging` | Any name you like |
-| `CORS_ORIGINS` | `https://www.your-domain.com` | Your frontend URL(s), comma-separated |
-| `JWT_SECRET` | 64-char random hex | `python -c "import secrets;print(secrets.token_hex(32))"` |
-| `ADMIN_EMAIL` | `admin@excelpackaging.in` | Admin CMS login |
-| `ADMIN_PASSWORD` | *(strong password)* | Admin CMS login |
-| `UPLOAD_DIR` | `/var/data/uploads` | Must point at a **persistent disk** |
+You now have 4 values: bucket name, endpoint, access key ID, secret access key.
 
-> **Image uploads:** files uploaded via the Admin CMS are saved to `UPLOAD_DIR`.
-> Attach a persistent disk/volume and point `UPLOAD_DIR` at it, otherwise CMS
-> uploads are lost on redeploy. (The starter catalog images are bundled into the
-> frontend under `/assets`, so they do **not** depend on the backend disk.)
+## Step 3 — Backend + MongoDB on Railway
+1. Go to https://railway.app → **New Project** → **Deploy from GitHub repo** → pick your repo.
+2. Open the created service → **Settings** → set **Root Directory** to `backend`.
+   Railway auto-detects Python and runs the included `Procfile`
+   (`uvicorn server:app --host 0.0.0.0 --port $PORT`).
+3. Add the database: in the project canvas click **+ New → Database → Add MongoDB**.
+   Railway provisions it and exposes a connection variable named `MONGO_URL`
+   (under the MongoDB service → **Variables** → `MONGO_URL` / `MONGO_PUBLIC_URL`).
+4. Open your **backend** service → **Variables** → add:
 
-### Option A — Render (recommended)
+   | Variable | Value |
+   |---|---|
+   | `MONGO_URL` | reference the MongoDB service's `MONGO_URL` (type `${{` and pick it) |
+   | `DB_NAME` | `excel_packaging` |
+   | `CORS_ORIGINS` | your Netlify URL (add after Step 4), e.g. `https://your-site.netlify.app` |
+   | `JWT_SECRET` | a long random string — `python -c "import secrets;print(secrets.token_hex(32))"` |
+   | `ADMIN_EMAIL` | `admin@excelpackaging.in` |
+   | `ADMIN_PASSWORD` | *(a strong password)* |
+   | `S3_BUCKET` | your R2 bucket name |
+   | `S3_ACCESS_KEY_ID` | R2 Access Key ID |
+   | `S3_SECRET_ACCESS_KEY` | R2 Secret Access Key |
+   | `S3_ENDPOINT_URL` | your R2 endpoint (`https://<ACCOUNT_ID>.r2.cloudflarestorage.com`) |
+   | `S3_REGION` | `auto` |
 
-A ready-made blueprint is included at `backend/render.yaml`.
+5. **Settings → Networking → Generate Domain** to get a public URL, e.g.
+   `https://excel-backend.up.railway.app`.
+6. Test: open `https://<your-backend>/api/content` → should return JSON.
 
-1. Push this repo to GitHub.
-2. Render → **New + → Blueprint** → select the repo. Render reads `backend/render.yaml`.
-3. Fill the prompted env vars (`MONGO_URL`, `CORS_ORIGINS`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`).
-4. Deploy. Your API will be at `https://excel-backend.onrender.com`.
-5. Test: open `https://excel-backend.onrender.com/api/content` → should return JSON.
+## Step 4 — Frontend on Netlify
+1. Netlify → **Add new site → Import an existing project** → pick your repo.
+2. **Base directory:** `frontend`  ·  Build command `yarn build`  ·  Publish directory `frontend/build`
+   (these are also in `frontend/netlify.toml`).
+3. **Environment variables** → add:
+   `REACT_APP_BACKEND_URL = https://<your-backend>.up.railway.app` (no trailing slash).
+4. Deploy. Copy the Netlify URL.
 
-*(Manual setup instead of blueprint: New Web Service → Root Directory `backend` →
-Build `pip install -r requirements.txt` → Start
-`uvicorn server:app --host 0.0.0.0 --port $PORT` → add the env vars → add a Disk
-mounted at `/var/data/uploads` and set `UPLOAD_DIR=/var/data/uploads`.)*
+## Step 5 — Connect them
+1. Put the Netlify URL into the backend's `CORS_ORIGINS` variable on Railway → it redeploys.
+2. Open your Netlify site → catalog, enquiry form, and `/admin` should all work.
+3. Log into `/admin` (your `ADMIN_EMAIL` / `ADMIN_PASSWORD`), edit content, click **Publish**,
+   and upload a product image to confirm R2 storage works.
 
-### Option B — Railway
-
-1. Push this repo to GitHub.
-2. Railway → **New Project → Deploy from GitHub repo**.
-3. Set the service **Root Directory** to `backend`. Railway auto-detects Python and
-   uses the included `Procfile` (`uvicorn server:app --host 0.0.0.0 --port $PORT`).
-4. **Variables** → add all env vars from the table above.
-5. Add a **Volume** and set its mount path as `UPLOAD_DIR` (e.g. `/data/uploads`).
-6. Deploy. Copy the public URL (e.g. `https://excel-backend.up.railway.app`).
-7. Test: `.../api/content` returns JSON.
-
----
-
-## Part 3 — Frontend: React
-
-The frontend lives in `/frontend`. It needs **one** build-time variable:
-
-| Variable | Value |
-|---|---|
-| `REACT_APP_BACKEND_URL` | Your backend URL from Part 2 (no trailing slash) |
-
-### Option A — Vercel
-
-1. Vercel → **Add New → Project** → import the repo.
-2. **Root Directory:** `frontend`.
-3. Framework preset: **Create React App** (auto-detected via `frontend/vercel.json`).
-4. **Environment Variables:** add `REACT_APP_BACKEND_URL = https://your-backend...`.
-5. Deploy. `frontend/vercel.json` already adds the SPA rewrite so deep links work.
-
-### Option B — Netlify
-
-1. Netlify → **Add new site → Import an existing project** → pick the repo.
-2. **Base directory:** `frontend`.
-3. Build command `yarn build`, Publish directory `frontend/build` (also set in `netlify.toml`).
-4. **Environment Variables:** add `REACT_APP_BACKEND_URL`.
-5. Deploy. `netlify.toml` + `public/_redirects` handle the SPA fallback.
+Done. 🎉
 
 ---
 
-## Part 4 — Connect the two
+# Alternatives
 
-1. After the frontend is live, copy its URL (e.g. `https://www.your-domain.com`).
-2. Set the backend `CORS_ORIGINS` to that URL and redeploy the backend.
-3. Open the site → the catalog, enquiry form and `/admin` should all work.
+### Frontend on Vercel (instead of Netlify)
+1. Vercel → **Add New → Project** → import the repo → **Root Directory:** `frontend`.
+2. Framework preset: **Create React App** (auto-detected via `frontend/vercel.json`).
+3. Env var: `REACT_APP_BACKEND_URL`. Deploy. SPA routing is handled by `vercel.json`.
+
+### Backend on Render + MongoDB Atlas (instead of Railway)
+Use this if you specifically want Render. Render has **no managed MongoDB**, so you also
+need MongoDB Atlas.
+
+**Atlas (database):**
+1. https://www.mongodb.com/atlas → sign up → **Create → M0 (free)** cluster.
+2. **Database Access** → add a user (username + password).
+3. **Network Access** → **Add IP → Allow access from anywhere** (`0.0.0.0/0`).
+4. Cluster → **Connect → Drivers** → Python → copy the string:
+   `mongodb+srv://USER:PASS@cluster0.xxxxx.mongodb.net/?retryWrites=true&w=majority`
+   (URL-encode special characters in the password: `@`→`%40`, `#`→`%23`, etc.)
+
+**Render (backend):** a blueprint is included at `backend/render.yaml`.
+1. Render → **New + → Blueprint** → select the repo (it reads `backend/render.yaml`).
+2. Fill the prompted env vars: `MONGO_URL` (the Atlas string), `CORS_ORIGINS`,
+   `ADMIN_EMAIL`, `ADMIN_PASSWORD`, and the `S3_*` values from R2.
+3. Deploy → API at `https://excel-backend.onrender.com`. Test `/api/content`.
+
+### Fully managed (no external setup)
+Emergent's own **Deploy** button hosts frontend + backend + database + custom domain
+(~50 credits/month). Zero third-party accounts needed.
 
 ---
 
-## Part 5 — Final SEO touch-ups (after you have a domain)
-
+# After you have a custom domain
 Find-and-replace `https://YOUR-DOMAIN.com` with your real domain in:
-
 - `frontend/public/sitemap.xml`
 - `frontend/public/robots.txt`
 
-(The page titles, canonical tags and Open Graph URLs are generated automatically
-from the live domain — no change needed there.)
+(Page titles, canonical tags and Open Graph URLs are generated from the live domain
+automatically — nothing to change there.)
 
-Optional analytics: in `frontend/public/index.html` there is a commented Google
-Analytics (GA4) block — uncomment it and paste your `G-XXXXXXXXXX` Measurement ID.
-
----
-
-## Seeding content
-
-On first deploy the database is empty. The starter catalog + site content ships in
-`backend/content_data.py` and is written on startup if the DB has no content
-document. Log in at `/admin` (with `ADMIN_EMAIL` / `ADMIN_PASSWORD`) to edit
-everything (hero, categories, products, contact, testimonials) — changes save as a
-draft and go live when you hit **Publish**.
+Optional analytics: uncomment the Google Analytics (GA4) block in
+`frontend/public/index.html` and paste your `G-XXXXXXXXXX` Measurement ID.
 
 ---
 
-## Local development
+# Environment variables reference
 
+**Backend** (Railway/Render):
+`MONGO_URL`, `DB_NAME`, `CORS_ORIGINS`, `JWT_SECRET`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`,
+`S3_BUCKET`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`, `S3_ENDPOINT_URL`, `S3_REGION`
+(see `backend/.env.example`).
+
+**Frontend** (Netlify/Vercel):
+`REACT_APP_BACKEND_URL` (see `frontend/.env.example`).
+
+---
+
+# Local development
 ```bash
 # Backend
-cd backend
-cp .env.example .env          # fill in values
+cd backend && cp .env.example .env    # fill in values
 pip install -r requirements.txt
 uvicorn server:app --reload --port 8001
 
 # Frontend (new terminal)
-cd frontend
-cp .env.example .env          # set REACT_APP_BACKEND_URL=http://localhost:8001
-yarn install
-yarn start
+cd frontend && cp .env.example .env   # REACT_APP_BACKEND_URL=http://localhost:8001
+yarn install && yarn start
 ```
 
-## Enquiries → Google Sheet (optional)
-The enquiry form can post to a Google Apps Script webhook so submissions land in a
-Google Sheet. Paste your Apps Script Web App URL in **Admin → Settings**.
+# Notes
+- **Seeding:** on first run the backend writes the starter catalog/content automatically.
+  Edit everything in `/admin` (Draft → Publish).
+- **Starter images** are bundled in `frontend/public/assets`, so they work with no object
+  storage. R2/S3 is only for *new* images uploaded through the CMS.
+- **Enquiries → Google Sheet (optional):** paste your Google Apps Script Web App URL in
+  **Admin → Settings** to log submissions to a sheet.

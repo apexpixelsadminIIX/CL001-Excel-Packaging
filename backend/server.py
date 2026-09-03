@@ -465,8 +465,11 @@ async def startup():
         logger.info("Seeded site content")
     # init object storage
     try:
-        init_storage()
-        logger.info("Object storage initialized")
+        mode = init_storage()
+        if mode == "unconfigured":
+            logger.warning("Object storage NOT configured — CMS image uploads disabled until S3_* env vars are set.")
+        else:
+            logger.info("Object storage initialized (s3-compatible)")
     except Exception as e:
         logger.error(f"Storage init failed: {e}")
 
