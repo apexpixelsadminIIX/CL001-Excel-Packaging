@@ -23,17 +23,36 @@ This avoids MongoDB Atlas entirely — Railway gives you a MongoDB database with
 ## Step 1 — Push the code to GitHub
 Use the **"Save to GitHub"** button in the Emergent chat. Everything below reads from that repo.
 
-## Step 2 — Object storage: Cloudflare R2 (free, ~5 min)
-CMS image uploads need durable storage or they vanish on redeploy. R2 is free (10 GB, no egress fees).
+## Step 2 — Object storage for CMS image uploads (free)
+CMS image uploads need durable storage or they vanish on redeploy. Both options below
+are S3-compatible and free — pick one.
 
-1. Sign up at https://dash.cloudflare.com → open **R2** (left sidebar) → enable it (may ask for a card, but the 10 GB tier is free).
-2. **Create bucket** → name it e.g. `excel-uploads` → Create.
-3. Back on the R2 overview page, copy your **S3 API endpoint** — looks like
-   `https://<ACCOUNT_ID>.r2.cloudflarestorage.com`.
-4. **Manage R2 API Tokens** → **Create API Token** → permission **Object Read & Write** →
-   **Create**. Copy the **Access Key ID** and **Secret Access Key** (shown once!).
+### Option 1 — Backblaze B2 (recommended: NO credit card required)
+Permanent free 10 GB.
 
-You now have 4 values: bucket name, endpoint, access key ID, secret access key.
+1. Sign up at https://www.backblaze.com/sign-up/cloud-storage (email only — no card).
+2. **B2 Cloud Storage → Buckets → Create a Bucket** → name it e.g. `excel-uploads`,
+   Files = **Private** → Create.
+3. Note the bucket's **Endpoint** shown in its details, e.g. `s3.us-west-004.backblazeb2.com`
+   → your `S3_ENDPOINT_URL` is `https://s3.us-west-004.backblazeb2.com` and your
+   `S3_REGION` is that region code (`us-west-004`).
+4. **App Keys → Add a New Application Key** → allow access to your bucket, Read & Write →
+   Create. Copy **keyID** (= `S3_ACCESS_KEY_ID`) and **applicationKey** (= `S3_SECRET_ACCESS_KEY`).
+
+So for B2 you set: `S3_BUCKET`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`,
+`S3_ENDPOINT_URL=https://s3.<region>.backblazeb2.com`, `S3_REGION=<region>`.
+
+### Option 2 — Cloudflare R2 (free 10 GB, but asks for a card at signup)
+1. Sign up at https://dash.cloudflare.com → open **R2** → enable it.
+2. **Create bucket** → e.g. `excel-uploads`.
+3. Copy your **S3 API endpoint** — `https://<ACCOUNT_ID>.r2.cloudflarestorage.com`.
+4. **Manage R2 API Tokens → Create API Token** → **Object Read & Write** → copy the
+   **Access Key ID** and **Secret Access Key**.
+
+For R2 set: `S3_BUCKET`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`,
+`S3_ENDPOINT_URL=https://<ACCOUNT_ID>.r2.cloudflarestorage.com`, `S3_REGION=auto`.
+
+Either way you end up with 5 values to set on your backend host (Step 3).
 
 ## Step 3 — Backend + MongoDB on Railway
 1. Go to https://railway.app → **New Project** → **Deploy from GitHub repo** → pick your repo.
